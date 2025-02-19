@@ -1,2 +1,12 @@
 *~
 build
+Listings
+Objects
+*.uvoptx
+*.uvguix*
+*.swp
+EventRecorderStub.scvd
+JLinkLog.txt
+*.asm
+bin
+
