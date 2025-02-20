@@ -18,6 +18,22 @@ MDK5为集成开发环境，可对固件程序进行编译等
 
 MDK5的最低版本为5.29。
 
+由于ST17H66没有提供设备支持包，也没有提供编程算法，故而开发时选择ARMCM0,需要安装CMSIS支持包(一般情况下MDK的安装程序会自动安装CMSIS支持包)。
+
+# BLE
+
+本章节主要用于对部分BLE相关资源的说明。
+
+## UUID
+
+UUID为通用唯一识别码,用于标识资源。UUID通常为128位，但128位的UUID空间占用比较大，一般采用16位的短UUID。
+
+16位短UUID与128位UUID可相互转化。一般情况下，16位短UUID是128位UUID的一部分。
+
+对于同一种类型的资源而言，UUID值类似C语言枚举值，均是通过数字标识具体的资源。
+
+蓝牙相关的数字分配可见：https://www.bluetooth.com/specifications/assigned-numbers/
+
 # SDK
 
 SDK见目录[SDK](SDK)。
