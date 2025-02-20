@@ -9,4 +9,4 @@ EventRecorderStub.scvd
 JLinkLog.txt
 *.asm
 bin
-
+*.bin
