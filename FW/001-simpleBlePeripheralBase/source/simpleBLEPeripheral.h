@@ -35,6 +35,10 @@ extern "C"
 #define SBP_ADD_RL_EVT                                 0x0002
 #define SBP_PERIODIC_EVT                               0x0004
 #define SBP_RESET_ADV_EVT                              0x0008
+
+#define HBOX_TICK_EVT																	 0x0010
+#define HBOX_INIT_EVT																	 0x0020
+
 #if ( HOST_CONFIG & OBSERVER_CFG )
 #define SBP_ENABLE_SCAN_EVT                             0x0040
 #endif

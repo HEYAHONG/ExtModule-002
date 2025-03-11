@@ -1,0 +1,13 @@
+#ifndef __HBOX_CONFIG_H__
+#define __HBOX_CONFIG_H__
+
+#define HDEFAULTS_TICK_GET      hbox_tick_get
+#define HDEFAULTS_MUTEX_LOCK    hbox_enter_critical
+#define HDEFAULTS_MUTEX_UNLOCK  hbox_exit_critical
+#define HDEFAULTS_MALLOC        hbox_malloc
+#define HDEFAULTS_FREE          hbox_free
+
+void hbox_init(void);
+void hbox_tick(void);
+
+#endif // __HBOX_CONFIG_H__

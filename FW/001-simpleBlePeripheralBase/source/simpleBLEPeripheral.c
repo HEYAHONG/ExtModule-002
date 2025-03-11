@@ -39,6 +39,7 @@
 #include "ll_def.h"
 #include "hci_tl.h"
 #include "l2cap_internal.h"
+#include "hbox_config.h"
 
 /*********************************************************************
     MACROS
@@ -451,6 +452,9 @@ void SimpleBLEPeripheral_Init( uint8 task_id )
     GAP_RegisterForHCIMsgs(simpleBLEPeripheral_TaskID);
     LL_PLUS_PerStats_Init(&g_perStatsByChanTest);
     LOG("======================SimpleBLEPeripheral_Init Done====================\n");
+    // 启动HBox
+    osal_set_event( simpleBLEPeripheral_TaskID, HBOX_INIT_EVT );
+    LOG("======================HBox Start====================\n");
 }
 
 /*********************************************************************
@@ -572,6 +576,21 @@ uint16 SimpleBLEPeripheral_ProcessEvent( uint8 task_id, uint16 events )
     }
 
 #endif
+
+    if ( events & HBOX_INIT_EVT )
+    {
+        hbox_init();
+        //启动TICK定时器
+        osal_start_reload_timer(simpleBLEPeripheral_TaskID,HBOX_TICK_EVT,1);
+        return ( events ^ HBOX_INIT_EVT );
+    }
+
+    if ( events & HBOX_TICK_EVT )
+    {
+        hbox_tick();
+        return ( events ^ HBOX_TICK_EVT );
+    }
+
     // Discard unknown events
     return 0;
 }
