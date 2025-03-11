@@ -227,70 +227,6 @@ static void hal_init(void)
     hal_gpio_init();
 }
 
-#if(DEF_DTM_EXT_API_TEST_MODE==1)
-static void simple_rfphy_dtm_ext_demo(void)
-{
-    uint8_t txPower = RF_PHY_TX_POWER_0DBM;
-    uint8_t rfChnIdx = 10;
-    int8_t  rfFoff = RF_PHY_FREQ_FOFF_00KHZ;
-    uint32_t testTimeUs = 100000;
-    uint8_t pktType = 0;//0 :prbs9, 1:11110000, 2:10101010
-    uint8_t pktLength =31;
-    uint32_t numTxPkt = 100;
-    uint8_t testMod=0;
-    uint32_t accCode = RF_PHY_DTM_SYNC_WORD;//
-    uint8_t rxEstRssi;
-    uint8_t rxEstCarrSens;
-    uint16_t rxPktNum;
-    uint16_t rxEstFoff;
-    uint8_t xtal_cap = 0x09;
-    rf_phy_dtm_ext_acc_code_set(accCode);
-
-    while(1)
-    {
-        hal_watchdog_feed();
-        testMod = (hal_gpio_read(P18)<<2)|(hal_gpio_read(P11)<<1)|(hal_gpio_read(P7));
-
-        if(testMod == 0)
-        {
-            LOG("single tone\n") ;
-            rf_phy_dtm_ext_tx_singleTone(txPower,rfChnIdx,xtal_cap,rfFoff,testTimeUs);
-            WaitMs(3*1000);
-        }
-        else if(testMod == 1)
-        {
-            LOG("modulation\n") ;
-            rf_phy_dtm_ext_tx_modulation(txPower,rfChnIdx,xtal_cap,rfFoff,pktType,testTimeUs);
-            WaitMs(3*1000);
-        }
-        else if(testMod == 2)
-        {
-            LOG("tx burst %d\n",pktType) ;
-            rf_phy_dtm_ext_tx_mod_burst(txPower,rfChnIdx,xtal_cap,rfFoff,pktType,pktLength,numTxPkt,20*1000/*pktIntv*/);
-        }
-        else if(testMod == 3)
-        {
-            pktType = 1;
-            LOG("tx burst %d\n",pktType) ;
-            rf_phy_dtm_ext_tx_mod_burst(txPower,rfChnIdx,xtal_cap,rfFoff,pktType,pktLength,numTxPkt,20*1000/*pktIntv*/);
-        }
-        else if(testMod == 4)
-        {
-            pktType = 2;
-            LOG("tx burst %d\n",pktType) ;
-            rf_phy_dtm_ext_tx_mod_burst(txPower,rfChnIdx,xtal_cap,rfFoff,pktType,pktLength,numTxPkt,20*1000/*pktIntv*/);
-        }
-        else if(testMod == 5)
-        {
-            LOG("rx burst\n");
-            uint16_t rxTimeOut = 2000;//ms
-            rf_phy_dtm_ext_rx_demod_burst(rfChnIdx,rfFoff,xtal_cap,pktLength,rxTimeOut,5000/*rxWindow*/,
-                                          &rxEstFoff,&rxEstRssi,&rxEstCarrSens,&rxPktNum);
-            LOG("%x %x %x [%d]",rxEstFoff,rxEstRssi,rxEstCarrSens,rxPktNum);
-        }
-    }
-}
-#endif
 
 
 
@@ -336,9 +272,6 @@ int  main(void)
         rf_phy_direct_test();
     }
 
-    #if(DEF_DTM_EXT_API_TEST_MODE)
-    simple_rfphy_dtm_ext_demo();
-    #endif
     LOG("SDK Version ID %08x \n",SDK_VER_RELEASE_ID);
     LOG("MAX_NUM_LL_CONN %d , GATT_MAX_NUM_CONN %d\n",MAX_NUM_LL_CONN,GATT_MAX_NUM_CONN);
     LOG("rfClk %d rcClk %d sysClk %d tpCap[%02x %02x]\n",g_rfPhyClkSel,g_clk32K_config,g_system_clk,g_rfPhyTpCal0,g_rfPhyTpCal1);

@@ -1,4 +1,4 @@
-﻿/**************************************************************************************************
+/**************************************************************************************************
 *******
 **************************************************************************************************/
 
@@ -459,7 +459,6 @@ void SimpleBLEPeripheral_Init( uint8 task_id )
 
     // Register callback with SimpleGATTprofile
     VOID SimpleProfile_RegisterAppCBs( &simpleBLEPeripheral_SimpleProfileCBs );
-    #if (1)
     {
         uint8_t mtuSet = 247;
         llInitFeatureSet2MPHY(TRUE);
@@ -467,32 +466,13 @@ void SimpleBLEPeripheral_Init( uint8 task_id )
         ATT_SetMTUSizeMax(mtuSet);
         LOG("[2Mbps | DLE | MTU %d] \n",mtuSet);
     }
-    #else
-    ATT_SetMTUSizeMax(23);
-    llInitFeatureSet2MPHY(FALSE);
-    llInitFeatureSetDLE(FALSE);
-    #endif
+
     // Setup a delayed profile startup
     osal_set_event( simpleBLEPeripheral_TaskID, SBP_START_DEVICE_EVT );
     // for receive HCI complete message
     GAP_RegisterForHCIMsgs(simpleBLEPeripheral_TaskID);
-    #if(APP_CFG_RPA_TEST)
-    // ========================= For Resolving Private Address testing
-    uint8 addrType = ADDRTYPE_PUBLIC;
-    initResolvingList();
-    GAPRole_SetParameter(GAPROLE_ADV_DIRECT_TYPE, 1, &addrType);
-    GAPRole_SetParameter(GAPROLE_ADV_DIRECT_ADDR, LL_DEVICE_ADDR_LEN, peerAddrList[0]);
-    LOG("======== RPA Init ========\n");
-    #endif
-    #if(DBG_RTC_TEST==1)
-    osal_start_timerEx(simpleBLEPeripheral_TaskID, SBP_RTC_TEST_EVT, 1000);
-    LOG("======== RTC TEST ========\n");
-    #endif
     LL_PLUS_PerStats_Init(&g_perStatsByChanTest);
     LOG("======================SimpleBLEPeripheral_Init Done====================\n");
-    #ifdef DBG_SPIF_TEST
-    osal_start_timerEx(simpleBLEPeripheral_TaskID, SBP_SPIF_FLASH_TEST_EVT, 500);
-    #endif
 }
 
 /*********************************************************************
