@@ -23,7 +23,7 @@
 #include "hci.h"
 #include "gapgattserver.h"
 #include "gattservapp.h"
-//#include "devinfoservice.h"
+#include "devinfoservice.h"
 #include "sbpProfile_ota.h"
 
 #ifdef PHY_OTA_ENABLE
@@ -388,7 +388,7 @@ void SimpleBLEPeripheral_Init( uint8 task_id )
     // Initialize GATT attributes
     GGS_AddService( GATT_ALL_SERVICES );            // GAP
     GATTServApp_AddService( GATT_ALL_SERVICES );    // GATT attributes
-    //DevInfo_AddService();                           // Device Information Service
+    DevInfo_AddService();                           // Device Information Service
 #ifdef PHY_OTA_ENABLE
     ota_app_AddService();
 #endif
@@ -709,7 +709,6 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
         uint8 ownAddress[B_ADDR_LEN];
         uint8 initial_advertising_enable = FALSE;//true
         GAPRole_GetParameter(GAPROLE_BD_ADDR, ownAddress);
-#if(0)
         uint8 systemId[DEVINFO_SYSTEM_ID_LEN];
         // use 6 bytes of device address for 8 bytes of system ID value
         systemId[0] = ownAddress[0];
@@ -723,7 +722,6 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
         systemId[6] = ownAddress[4];
         systemId[5] = ownAddress[3];
         DevInfo_SetParameter(DEVINFO_SYSTEM_ID, DEVINFO_SYSTEM_ID_LEN, systemId);
-#endif
         GAPRole_SetParameter( GAPROLE_SCAN_RSP_DATA, sizeof ( scanRspData ), scanRspData );
         // Set the GAP Characteristics
         GGS_SetParameter( GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName );

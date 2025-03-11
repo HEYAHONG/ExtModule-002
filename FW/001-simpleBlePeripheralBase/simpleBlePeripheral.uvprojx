@@ -598,6 +598,11 @@
               <FileType>1</FileType>
               <FilePath>.\source\SimpleBLEPeripheral_Main.c</FilePath>
             </File>
+            <File>
+              <FileName>devinfoservice.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\source\devinfoservice.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
