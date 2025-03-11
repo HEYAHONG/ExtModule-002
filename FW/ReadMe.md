@@ -174,6 +174,16 @@ ST17H66通常采用串口调试(即通过串口打印信息来进行调试)，�
 
 具体硬件及其教程见[官方下载目录](http://doc.lenze.club/)的教程。
 
+# 目录说明
+
+- [数字]-[名称]：数字为固件编号，名称为固件名称。
+- [LeKit](LeKit)：官方下载工具
+- [SDK](SDK)：SDK目录
+
+## 固件说明
+
+- [001-simpleBlePeripheralBase](001-simpleBlePeripheralBase):简单BLE外设基础模板
+
 # 官方链接
 
 - 官网:http://lenzetech.com/
