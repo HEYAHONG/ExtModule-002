@@ -34,6 +34,8 @@ UUID为通用唯一识别码,用于标识资源。UUID通常为128位，但128�
 
 蓝牙相关的数字分配可见：https://www.bluetooth.com/specifications/assigned-numbers/
 
+若处于Linux环境或者WSL环境，可使用`uuidgen`生成128位uuid。
+
 ## 广播包与扫描响应包
 
 对于基于BLE的设备而言,最简单的应用就是使用广播包发送信息，实际应用的例子如某某TAG使用蓝牙进行追踪。
