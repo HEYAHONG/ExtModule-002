@@ -1,4 +1,4 @@
-﻿/**************************************************************************************************
+/**************************************************************************************************
 *******
 **************************************************************************************************/
 
@@ -35,22 +35,11 @@ extern "C"
 #define SBP_ADD_RL_EVT                                 0x0002
 #define SBP_PERIODIC_EVT                               0x0004
 #define SBP_RESET_ADV_EVT                              0x0008
-#define SBP_DISABLE_LATENCY_TEST_EVT                   0x0010
-#define SBP_ENABLE_LATENCY_EVT                         0x0020
 #if ( HOST_CONFIG & OBSERVER_CFG )
 #define SBP_ENABLE_SCAN_EVT                             0x0040
 #endif
 
-//#define SBP_DLE_CHANGE_EVT                             0x0020
-//#define SBP_PHY_UPDATE_EVT                             0x0040
-//#define SBP_CONN_NOTIFY_EVT                            0x0080
-#define SBP_RTC_TEST_EVT                               0x0100
-#define SBP_DYN_CLK_CHG_TEST_EVT                       0x0200
 
-#define xDBG_SPIF_TEST
-#ifdef DBG_SPIF_TEST
-#define SBP_SPIF_FLASH_TEST_EVT                         0x0400
-#endif
 
 #define SBP_LL_DEBUG_SHOW_EVT                           0x0800
 /*********************************************************************
