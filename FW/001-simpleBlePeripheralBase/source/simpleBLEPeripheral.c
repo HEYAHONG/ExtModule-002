@@ -255,7 +255,7 @@ static uint8 otaConnTimeOut     = DEFAULT_DESIRED_CONN_TIMEOUT/100;        //uni
 #endif
 
 // GAP GATT Attributes
-static uint8 attDeviceName[GAP_DEVICE_NAME_LEN] = "BUMBLE- -FFFFFF ";
+static uint8 attDeviceName[GAP_DEVICE_NAME_LEN] = "EXTMODULE-002";
 /*********************************************************************
     LOCAL FUNCTIONS
 */
@@ -880,7 +880,6 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
     case GAPROLE_STARTED:
     {
         uint8 ownAddress[B_ADDR_LEN];
-        uint8 str_addr[14]= {0};
         uint8 initial_advertising_enable = FALSE;//true
         GAPRole_GetParameter(GAPROLE_BD_ADDR, ownAddress);
         #if(0)
@@ -898,22 +897,10 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
         systemId[5] = ownAddress[3];
         DevInfo_SetParameter(DEVINFO_SYSTEM_ID, DEVINFO_SYSTEM_ID_LEN, systemId);
         #endif
-        osal_memcpy(&str_addr[0],bdAddr2Str(ownAddress),14);
-        osal_memcpy(&scanRspData[11],&str_addr[6],8);
-        osal_memcpy(&attDeviceName[9],&str_addr[6],8);
         GAPRole_SetParameter( GAPROLE_SCAN_RSP_DATA, sizeof ( scanRspData ), scanRspData );
         // Set the GAP Characteristics
         GGS_SetParameter( GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName );
         GAPRole_SetParameter( GAPROLE_ADVERT_ENABLED, sizeof( uint8 ), &initial_advertising_enable );
-        #if(APP_CFG_RPA_TEST)
-
-        // init RPA list and enable resolving address
-        for (int i = 0; i < 3; i ++)
-            HCI_LE_AddDevToResolvingListCmd(peerAddrType[i], peerAddrList[i], peerIrkList[i], localIrkList[i]);
-
-        HCI_LE_SetResolvablePrivateAddressTimeoutCmd(60);
-        HCI_LE_SetAddressResolutionEnableCmd(TRUE);
-        #endif
         //osal_start_timerEx(simpleBLEPeripheral_TaskID, SBP_RESET_ADV_EVT, 500);
         osal_set_event(simpleBLEPeripheral_TaskID, SBP_RESET_ADV_EVT);
         #if ( HOST_CONFIG & OBSERVER_CFG )
@@ -927,12 +914,6 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
         osal_stop_timerEx(simpleBLEPeripheral_TaskID, SBP_PERIODIC_EVT);
         notifyCnt=0;
         notifyInterval = 0;
-        #if(LATENCY_TEST==1)
-        osal_stop_timerEx(simpleBLEPeripheral_TaskID, SBP_DISABLE_LATENCY_TEST_EVT);
-        disLatInterval = 0;
-        disLatCnt = 0;
-        disLatTxNum=0;
-        #endif
     }
     break;
 
