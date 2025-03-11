@@ -27,7 +27,7 @@
 #include "sbpProfile_ota.h"
 
 #ifdef PHY_OTA_ENABLE
-    #include "ota_app_service.h"
+#include "ota_app_service.h"
 #endif
 #include "peripheral.h"
 #include "gapbondmgr.h"
@@ -228,10 +228,10 @@ static uint8 otaConnIntvLatency = DEFAULT_DESIRED_SLAVE_LATENCY;        //
 static uint8 otaConnTimeOut     = DEFAULT_DESIRED_CONN_TIMEOUT/100;        //unit is second
 
 #if ( HOST_CONFIG & OBSERVER_CFG )
-    gapDevDiscReq_t sbp_scanparam;
-    #define MAX_SCAN   10
-    gapDevRec_t scanlist[MAX_SCAN];
-    static uint8 scannum = 0;
+gapDevDiscReq_t sbp_scanparam;
+#define MAX_SCAN   10
+gapDevRec_t scanlist[MAX_SCAN];
+static uint8 scannum = 0;
 #endif
 
 // GAP GATT Attributes
@@ -296,7 +296,7 @@ static simpleProfileCBs_t simpleBLEPeripheral_SimpleProfileCBs =
 void SimpleBLEPeripheral_Init( uint8 task_id )
 {
     simpleBLEPeripheral_TaskID = task_id;
-    #if ( HOST_CONFIG & OBSERVER_CFG )
+#if ( HOST_CONFIG & OBSERVER_CFG )
     {
         uint16 scan_window = 0x30;//unit 625us
         uint16 scan_interval = 0x30;//unit 625us
@@ -317,7 +317,7 @@ void SimpleBLEPeripheral_Init( uint8 task_id )
         // extern uint32* pGlobal_config;
         // pGlobal_config[LL_SWITCH] |=GAP_DUP_RPT_FILTER_DISALLOW;
     }
-    #endif
+#endif
     // Setup the GAP
     VOID GAP_SetParamValue( TGAP_CONN_PAUSE_PERIPHERAL, DEFAULT_CONN_PAUSE_PERIPHERAL );
     // Setup the GAP Peripheral Role Profile
@@ -370,7 +370,7 @@ void SimpleBLEPeripheral_Init( uint8 task_id )
         GAP_SetParamValue( TGAP_GEN_DISC_ADV_INT_MIN, advInt );
         GAP_SetParamValue( TGAP_GEN_DISC_ADV_INT_MAX, advInt );
     }
-    #if(DEF_GAPBOND_MGR_ENABLE==1)
+#if(DEF_GAPBOND_MGR_ENABLE==1)
     // Setup the GAP Bond Manager, add 2017-11-15
     {
         uint32 passkey = DEFAULT_PASSCODE;
@@ -384,14 +384,14 @@ void SimpleBLEPeripheral_Init( uint8 task_id )
         GAPBondMgr_SetParameter( GAPBOND_IO_CAPABILITIES, sizeof ( uint8 ), &ioCap );
         GAPBondMgr_SetParameter( GAPBOND_BONDING_ENABLED, sizeof ( uint8 ), &bonding );
     }
-    #endif
+#endif
     // Initialize GATT attributes
     GGS_AddService( GATT_ALL_SERVICES );            // GAP
     GATTServApp_AddService( GATT_ALL_SERVICES );    // GATT attributes
     //DevInfo_AddService();                           // Device Information Service
-    #ifdef PHY_OTA_ENABLE
+#ifdef PHY_OTA_ENABLE
     ota_app_AddService();
-    #endif
+#endif
     SimpleProfile_AddService( GATT_ALL_SERVICES );  // Simple GATT Profile
     // Setup the SimpleProfile Characteristic Values
     {
@@ -489,10 +489,10 @@ uint16 SimpleBLEPeripheral_ProcessEvent( uint8 task_id, uint16 events )
     {
         // Start the Device
         VOID GAPRole_StartDevice( &simpleBLEPeripheral_PeripheralCBs );
-        #if(DEF_GAPBOND_MGR_ENABLE==1)
+#if(DEF_GAPBOND_MGR_ENABLE==1)
         // Start Bond Manager, 2017-11-15
         VOID GAPBondMgr_Register( &simpleBLEPeripheral_BondMgrCBs );
-        #endif
+#endif
         // Set timer for first periodic event
         //osal_start_timerEx( simpleBLEPeripheral_TaskID, SBP_PERIODIC_EVT, SBP_PERIODIC_EVT_PERIOD );
         HCI_LE_ReadResolvingListSizeCmd();
@@ -562,7 +562,7 @@ uint16 SimpleBLEPeripheral_ProcessEvent( uint8 task_id, uint16 events )
         return ( events ^ SBP_PERIODIC_EVT );
     }
 
-      #if ( HOST_CONFIG & OBSERVER_CFG )
+#if ( HOST_CONFIG & OBSERVER_CFG )
 
     if ( events & SBP_ENABLE_SCAN_EVT )
     {
@@ -571,7 +571,7 @@ uint16 SimpleBLEPeripheral_ProcessEvent( uint8 task_id, uint16 events )
         return ( events ^ SBP_ENABLE_SCAN_EVT );
     }
 
-    #endif
+#endif
     // Discard unknown events
     return 0;
 }
@@ -662,7 +662,7 @@ static void simpleBLEPeripheral_ProcessOSALMsg( osal_event_hdr_t* pMsg )
         }
     }
 
-    #if ( HOST_CONFIG & OBSERVER_CFG )
+#if ( HOST_CONFIG & OBSERVER_CFG )
 
     case GAP_MSG_EVENT:
     {
@@ -670,7 +670,7 @@ static void simpleBLEPeripheral_ProcessOSALMsg( osal_event_hdr_t* pMsg )
         break;
     }
 
-    #endif
+#endif
     }
 }
 /*********************************************************************
@@ -709,7 +709,7 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
         uint8 ownAddress[B_ADDR_LEN];
         uint8 initial_advertising_enable = FALSE;//true
         GAPRole_GetParameter(GAPROLE_BD_ADDR, ownAddress);
-        #if(0)
+#if(0)
         uint8 systemId[DEVINFO_SYSTEM_ID_LEN];
         // use 6 bytes of device address for 8 bytes of system ID value
         systemId[0] = ownAddress[0];
@@ -723,16 +723,16 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
         systemId[6] = ownAddress[4];
         systemId[5] = ownAddress[3];
         DevInfo_SetParameter(DEVINFO_SYSTEM_ID, DEVINFO_SYSTEM_ID_LEN, systemId);
-        #endif
+#endif
         GAPRole_SetParameter( GAPROLE_SCAN_RSP_DATA, sizeof ( scanRspData ), scanRspData );
         // Set the GAP Characteristics
         GGS_SetParameter( GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName );
         GAPRole_SetParameter( GAPROLE_ADVERT_ENABLED, sizeof( uint8 ), &initial_advertising_enable );
         //osal_start_timerEx(simpleBLEPeripheral_TaskID, SBP_RESET_ADV_EVT, 500);
         osal_set_event(simpleBLEPeripheral_TaskID, SBP_RESET_ADV_EVT);
-        #if ( HOST_CONFIG & OBSERVER_CFG )
+#if ( HOST_CONFIG & OBSERVER_CFG )
         osal_set_event(simpleBLEPeripheral_TaskID, SBP_ENABLE_SCAN_EVT);
-        #endif
+#endif
     }
     break;
 
@@ -955,7 +955,7 @@ static void simpleProfileChangeCB( uint8 paramID )
 //        LOG_DEBUG("[PHY] %02d %02d %d\n",allPhy,txPhy,status);
         }
 
-        
+
         break;
 
     default:

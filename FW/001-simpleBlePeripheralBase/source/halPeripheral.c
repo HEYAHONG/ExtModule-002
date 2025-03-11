@@ -67,21 +67,21 @@ static void key_press_evt(uint8_t i,key_evt_t key_evt)
     {
     case HAL_KEY_EVT_PRESS:
         LOG("key(press down)\n");
-        #ifdef HAL_KEY_SUPPORT_LONG_PRESS
+#ifdef HAL_KEY_SUPPORT_LONG_PRESS
         osal_start_timerEx(key_state.task_id,KEY_DEMO_LONG_PRESS_EVT,HAL_KEY_LONG_PRESS_TIME);
-        #endif
+#endif
         break;
 
     case HAL_KEY_EVT_RELEASE:
         LOG("key(press release)\n");
         break;
-        #ifdef HAL_KEY_SUPPORT_LONG_PRESS
+#ifdef HAL_KEY_SUPPORT_LONG_PRESS
 
     case HAL_KEY_EVT_LONG_RELEASE:
         hal_pwrmgr_unlock(MOD_USR1);
         LOG("key(long press release)\n");
         break;
-        #endif
+#endif
 
     default:
         LOG("unexpect\n");
@@ -176,7 +176,7 @@ uint16 HalPeripheral_ProcessEvent( uint8 task_id, uint16 events )
         return (events ^ HAL_KEY_EVENT);
     }
 
-    #ifdef HAL_KEY_SUPPORT_LONG_PRESS
+#ifdef HAL_KEY_SUPPORT_LONG_PRESS
 
     if( events & KEY_DEMO_LONG_PRESS_EVT)
     {
@@ -194,7 +194,7 @@ uint16 HalPeripheral_ProcessEvent( uint8 task_id, uint16 events )
         return (events ^ KEY_DEMO_LONG_PRESS_EVT);
     }
 
-    #endif
+#endif
     // Discard unknown events
     return 0;
 }

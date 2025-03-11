@@ -114,34 +114,34 @@ static simpleProfileCBs_t* simpleProfile_AppCBs = NULL;
 static CONST gattAttrType_t simpleProfileService = { ATT_BT_UUID_SIZE, simpleProfileServUUID };
 
 #if 0
-    // Simple Profile Characteristic 1 Properties
-    static uint8 simpleProfileChar1Props = GATT_PROP_READ | GATT_PROP_WRITE;
+// Simple Profile Characteristic 1 Properties
+static uint8 simpleProfileChar1Props = GATT_PROP_READ | GATT_PROP_WRITE;
 
-    // Characteristic 1 Value
-    static uint8 simpleProfileChar1[IBEACON_UUID_LEN];// = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
+// Characteristic 1 Value
+static uint8 simpleProfileChar1[IBEACON_UUID_LEN];// = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
 
-    // Simple Profile Characteristic 1 User Description
-    static uint8 simpleProfileChar1UserDesp[] = "UUID\0";
-
-
-    // Simple Profile Characteristic 2 Properties
-    static uint8 simpleProfileChar2Props = GATT_PROP_READ | GATT_PROP_WRITE;
-
-    // Characteristic 2 Value
-    static uint16 simpleProfileChar2 = 0;
-
-    // Simple Profile Characteristic 2 User Description
-    static uint8 simpleProfileChar2UserDesp[] = "Major\0";
+// Simple Profile Characteristic 1 User Description
+static uint8 simpleProfileChar1UserDesp[] = "UUID\0";
 
 
-    // Simple Profile Characteristic 3 Properties
-    static uint8 simpleProfileChar3Props = GATT_PROP_READ | GATT_PROP_WRITE;
+// Simple Profile Characteristic 2 Properties
+static uint8 simpleProfileChar2Props = GATT_PROP_READ | GATT_PROP_WRITE;
 
-    // Characteristic 3 Value
-    static uint16 simpleProfileChar3 = 0;
+// Characteristic 2 Value
+static uint16 simpleProfileChar2 = 0;
 
-    // Simple Profile Characteristic 3 User Description
-    static uint8 simpleProfileChar3UserDesp[] = "Minor\0";
+// Simple Profile Characteristic 2 User Description
+static uint8 simpleProfileChar2UserDesp[] = "Major\0";
+
+
+// Simple Profile Characteristic 3 Properties
+static uint8 simpleProfileChar3Props = GATT_PROP_READ | GATT_PROP_WRITE;
+
+// Characteristic 3 Value
+static uint16 simpleProfileChar3 = 0;
+
+// Simple Profile Characteristic 3 User Description
+static uint8 simpleProfileChar3UserDesp[] = "Minor\0";
 #endif
 
 // Simple Profile Characteristic 4 Properties
@@ -209,7 +209,7 @@ static gattAttribute_t simpleProfileAttrTbl[] =
         (uint8*)& simpleProfileService            /* pValue */
     },
 
-    #if 0
+#if 0
     // Characteristic 1 Declaration
     {
         { ATT_BT_UUID_SIZE, characterUUID },
@@ -281,7 +281,7 @@ static gattAttribute_t simpleProfileAttrTbl[] =
         0,
         simpleProfileChar3UserDesp
     },
-    #endif
+#endif
 
     // Characteristic 4 Declaration
     {
@@ -398,7 +398,7 @@ static gattAttribute_t simpleProfileAttrTbl[] =
 static uint8 simpleProfile_ReadAttrCB( uint16 connHandle, gattAttribute_t* pAttr,
                                        uint8* pValue, uint16* pLen, uint16 offset, uint8 maxLen );
 static bStatus_t simpleProfile_WriteAttrCB( uint16 connHandle, gattAttribute_t* pAttr,
-                                            uint8* pValue, uint16 len, uint16 offset );
+        uint8* pValue, uint16 len, uint16 offset );
 
 static void simpleProfile_HandleConnStatusCB( uint16 connHandle, uint8 changeType );
 
@@ -493,7 +493,7 @@ bStatus_t SimpleProfile_SetParameter( uint8 param, uint8 len, void* value )
 
     switch ( param )
     {
-        #if 0
+#if 0
 
     case SIMPLEPROFILE_CHAR1:
         if ( len <= IBEACON_UUID_LEN )
@@ -530,7 +530,7 @@ bStatus_t SimpleProfile_SetParameter( uint8 param, uint8 len, void* value )
         }
 
         break;
-        #endif
+#endif
 
     case SIMPLEPROFILE_CHAR4:
         if ( len == sizeof ( uint8 ) )
@@ -599,7 +599,7 @@ bStatus_t SimpleProfile_GetParameter( uint8 param, void* value )
 
     switch ( param )
     {
-        #if 0
+#if 0
 
     case SIMPLEPROFILE_CHAR1:
         VOID osal_memcpy( value, simpleProfileChar1, IBEACON_UUID_LEN );
@@ -612,7 +612,7 @@ bStatus_t SimpleProfile_GetParameter( uint8 param, void* value )
     case SIMPLEPROFILE_CHAR3:
         *((uint16*)value) = simpleProfileChar3;
         break;
-        #endif
+#endif
 
     case SIMPLEPROFILE_CHAR4:
         *((uint8*)value) = simpleProfileChar4;
@@ -676,7 +676,7 @@ static uint8 simpleProfile_ReadAttrCB( uint16 connHandle, gattAttribute_t* pAttr
         {
             // No need for "GATT_SERVICE_UUID" or "GATT_CLIENT_CHAR_CFG_UUID" cases;
             // gattserverapp handles those reads
-            #if 0
+#if 0
         case SIMPLEPROFILE_CHAR1_UUID:
             *pLen = IBEACON_UUID_LEN;
             VOID osal_memcpy( pValue, pAttr->pValue, IBEACON_UUID_LEN );
@@ -688,7 +688,7 @@ static uint8 simpleProfile_ReadAttrCB( uint16 connHandle, gattAttribute_t* pAttr
             *pLen = 2;
             VOID osal_memcpy( pValue, pAttr->pValue, *pLen );
             break;
-            #endif
+#endif
 
         case SIMPLEPROFILE_CHAR4_UUID:
             *pLen = 1;
@@ -744,7 +744,7 @@ static uint8 simpleProfile_ReadAttrCB( uint16 connHandle, gattAttribute_t* pAttr
 */
 // TODO: test this function
 static bStatus_t simpleProfile_WriteAttrCB( uint16 connHandle, gattAttribute_t* pAttr,
-                                            uint8* pValue, uint16 len, uint16 offset )
+        uint8* pValue, uint16 len, uint16 offset )
 {
     bStatus_t status = SUCCESS;
     uint8 notifyApp = 0xFF;
@@ -763,7 +763,7 @@ static bStatus_t simpleProfile_WriteAttrCB( uint16 connHandle, gattAttribute_t* 
 
         switch ( uuid )
         {
-            #if 0
+#if 0
 
         case SIMPLEPROFILE_CHAR1_UUID:
 
@@ -826,7 +826,7 @@ static bStatus_t simpleProfile_WriteAttrCB( uint16 connHandle, gattAttribute_t* 
             }
 
             break;
-            #endif
+#endif
 
         case SIMPLEPROFILE_CHAR4_UUID:
 
@@ -984,7 +984,7 @@ static bStatus_t simpleProfile_WriteAttrCB( uint16 connHandle, gattAttribute_t* 
 
         case GATT_CLIENT_CHAR_CFG_UUID:
             status = GATTServApp_ProcessCCCWriteReq( connHandle, pAttr, pValue, len,
-                                                     offset, GATT_CLIENT_CFG_NOTIFY );
+                     offset, GATT_CLIENT_CFG_NOTIFY );
             break;
 
         default:

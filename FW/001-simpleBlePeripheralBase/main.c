@@ -80,8 +80,8 @@ llConnState_t               pConnContext[BLE_MAX_ALLOW_CONNECTION];
 */
 //#define BLE_SUPPORT_CTE_IQ_SAMPLE TRUE
 #ifdef BLE_SUPPORT_CTE_IQ_SAMPLE
-    uint16 g_llCteSampleI[LL_CTE_MAX_SUPP_LEN * LL_CTE_SUPP_LEN_UNIT];
-    uint16 g_llCteSampleQ[LL_CTE_MAX_SUPP_LEN * LL_CTE_SUPP_LEN_UNIT];
+uint16 g_llCteSampleI[LL_CTE_MAX_SUPP_LEN * LL_CTE_SUPP_LEN_UNIT];
+uint16 g_llCteSampleQ[LL_CTE_MAX_SUPP_LEN * LL_CTE_SUPP_LEN_UNIT];
 #endif
 
 
@@ -89,9 +89,9 @@ llConnState_t               pConnContext[BLE_MAX_ALLOW_CONNECTION];
     OSAL LARGE HEAP CONFIG
 */
 #if ( HOST_CONFIG & OBSERVER_CFG )
-    #define     LARGE_HEAP_SIZE  (4*1024)
+#define     LARGE_HEAP_SIZE  (4*1024)
 #else
-    #define     LARGE_HEAP_SIZE  (3*1024)
+#define     LARGE_HEAP_SIZE  (3*1024)
 #endif
 ALIGN4_U8   g_largeHeap[LARGE_HEAP_SIZE];
 
@@ -118,7 +118,7 @@ static void hal_low_power_io_init(void)
     //========= pull all io to gnd by default
     ioinit_cfg_t ioInit[]=
     {
-        
+
         {GPIO_P02,   GPIO_FLOATING   },/*SWD*/
         {GPIO_P03,   GPIO_FLOATING   },/*SWD*/
         {GPIO_P09,   GPIO_PULL_UP    },/*UART TX*/
@@ -129,8 +129,8 @@ static void hal_low_power_io_init(void)
         {GPIO_P16,   GPIO_FLOATING   },
         {GPIO_P18,   GPIO_PULL_DOWN  },
         {GPIO_P20,   GPIO_PULL_DOWN  },
-        #if(SDK_VER_CHIP==__DEF_CHIP_QFN32__)
-        
+#if(SDK_VER_CHIP==__DEF_CHIP_QFN32__)
+
         {GPIO_P00,   GPIO_PULL_DOWN  },
         {GPIO_P01,   GPIO_PULL_DOWN  },
         {GPIO_P07,   GPIO_PULL_DOWN  },
@@ -144,7 +144,7 @@ static void hal_low_power_io_init(void)
         {GPIO_P32,   GPIO_PULL_DOWN  },
         {GPIO_P33,   GPIO_PULL_DOWN  },
         {GPIO_P34,   GPIO_PULL_DOWN  },
-        #endif
+#endif
     };
 
     for(uint8_t i=0; i<sizeof(ioInit)/sizeof(ioinit_cfg_t); i++)
@@ -154,11 +154,11 @@ static void hal_low_power_io_init(void)
     DCDC_REF_CLK_SETTING(1);
     DIG_LDO_CURRENT_SETTING(0x01);
     //hal_pwrmgr_RAM_retention(RET_SRAM0|RET_SRAM2);
-    #if ( HOST_CONFIG & OBSERVER_CFG )
+#if ( HOST_CONFIG & OBSERVER_CFG )
     hal_pwrmgr_RAM_retention(RET_SRAM0|RET_SRAM1);
-    #else
+#else
     hal_pwrmgr_RAM_retention(RET_SRAM0|RET_SRAM1);
-    #endif
+#endif
     hal_pwrmgr_RAM_retention_set();
     hal_pwrmgr_LowCurrentLdo_enable();
 }
@@ -183,9 +183,9 @@ static void ble_mem_init_config(void)
                         l2capReassembleBuf,l2capSegmentBuf,
                         gattClientInfo,
                         gattServerInfo);
-    #ifdef  BLE_SUPPORT_CTE_IQ_SAMPLE
+#ifdef  BLE_SUPPORT_CTE_IQ_SAMPLE
     LL_EXT_Init_IQ_pBuff(g_llCteSampleI,g_llCteSampleQ);
-    #endif
+#endif
 }
 
 static void hal_rfphy_init(void)
@@ -236,32 +236,32 @@ int  main(void)
     watchdog_config(WDG_2S);
     g_system_clk = SYS_CLK_XTAL_16M;//SYS_CLK_DBL_32M;//SYS_CLK_XTAL_16M;//SYS_CLK_DLL_64M;//SYS_CLK_DLL_48M;
     g_clk32K_config = CLK_32K_RCOSC;//CLK_32K_XTAL,CLK_32K_RCOSC
-    #if(FLASH_PROTECT_FEATURE == 1)
+#if(FLASH_PROTECT_FEATURE == 1)
     hal_flash_enable_lock(MAIN_INIT);
-    #endif
-    #if defined ( __GNUC__ )
+#endif
+#if defined ( __GNUC__ )
     extern const uint32_t* const jump_table_base[];
     osal_memcpy((void*)0x1fff0000, (void*)jump_table_base, 1024);
-    #endif
+#endif
     drv_irq_init();
     init_config();
-    #if ( HOST_CONFIG & OBSERVER_CFG )
+#if ( HOST_CONFIG & OBSERVER_CFG )
     extern void ll_patch_advscan(void);
     ll_patch_advscan();
     extern void ll_patch_adv(void);
     ll_patch_adv();
-    #else
+#else
     extern void ll_patch_slave(void);
     ll_patch_slave();
     extern void ll_patch_adv(void);
     ll_patch_adv();
-    #endif
-    #if(CFG_HCLK_DYNAMIC_CHANGE)
+#endif
+#if(CFG_HCLK_DYNAMIC_CHANGE)
     extern void ll_patch_hclk_dynamic_chg(void);
     ll_patch_hclk_dynamic_chg();
-    #endif
-		extern void ll_patch_sleep(void);
-		ll_patch_sleep();
+#endif
+    extern void ll_patch_sleep(void);
+    ll_patch_sleep();
     hal_rfphy_init();
     hal_init();
 
