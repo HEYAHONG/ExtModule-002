@@ -45,6 +45,9 @@ void hbox_init(void)
     hprintf_set_callback(hputchar);
 
     hprintf("HBox Init.\r\n");
+    hprintf("build time %04d/%02d/%02d %02d:%02d:%02d\r\n",hcompiler_get_date_year(),hcompiler_get_date_month(),hcompiler_get_date_day(),hcompiler_get_time_hour(),hcompiler_get_time_minute(),hcompiler_get_time_second());
+
+
 
     //初始化看门狗
     hwatchdog_set_hardware_dog_feed(hw_feed);
