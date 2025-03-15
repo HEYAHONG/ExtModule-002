@@ -793,89 +793,19 @@
               <FilePath>..\3rdparty\HCppBox\master\hbox\hwatchdog.c</FilePath>
             </File>
             <File>
-              <FileName>hmodbus_crc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\modbus\hmodbus_crc.c</FilePath>
-            </File>
-            <File>
-              <FileName>hmodbus_data.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\modbus\hmodbus_data.c</FilePath>
-            </File>
-            <File>
-              <FileName>hmodbus_io_interface.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\modbus\hmodbus_io_interface.c</FilePath>
-            </File>
-            <File>
-              <FileName>hmodbus_rtu.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\modbus\hmodbus_rtu.c</FilePath>
-            </File>
-            <File>
-              <FileName>hmodbus_rtu_master.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\modbus\hmodbus_rtu_master.c</FilePath>
-            </File>
-            <File>
-              <FileName>hmodbus_rtu_slave_tiny.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\modbus\hmodbus_rtu_slave_tiny.c</FilePath>
-            </File>
-            <File>
-              <FileName>hmodbus_tcp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\modbus\hmodbus_tcp.c</FilePath>
-            </File>
-            <File>
-              <FileName>hmodbus_tcp_client.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\modbus\hmodbus_tcp_client.c</FilePath>
-            </File>
-            <File>
-              <FileName>hmodbus_tcp_gateway_server.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\modbus\hmodbus_tcp_gateway_server.c</FilePath>
-            </File>
-            <File>
-              <FileName>hgui_gui_common.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\gui\hgui_gui_common.c</FilePath>
-            </File>
-            <File>
-              <FileName>hgui_gui_dotfont.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\gui\hgui_gui_dotfont.c</FilePath>
-            </File>
-            <File>
-              <FileName>hgui_gui_driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\gui\hgui_gui_driver.c</FilePath>
-            </File>
-            <File>
-              <FileName>hgui_gui_event.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\gui\hgui_gui_event.c</FilePath>
-            </File>
-            <File>
-              <FileName>hgui_gui_pixel.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\gui\hgui_gui_pixel.c</FilePath>
-            </File>
-            <File>
-              <FileName>hgui_gui_scene1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\gui\hgui_gui_scene1.c</FilePath>
-            </File>
-            <File>
-              <FileName>hgui_gui_xpm.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\gui\hgui_gui_xpm.c</FilePath>
-            </File>
-            <File>
               <FileName>hbox_config.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\3rdparty\HCppBox\hbox_config.c</FilePath>
+            </File>
+            <File>
+              <FileName>hgui.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdparty\HCppBox\master\hbox\hgui.c</FilePath>
+            </File>
+            <File>
+              <FileName>hmodbus.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdparty\HCppBox\master\hbox\hmodbus.c</FilePath>
             </File>
           </Files>
         </Group>
