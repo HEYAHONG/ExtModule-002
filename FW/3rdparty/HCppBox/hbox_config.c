@@ -3,6 +3,7 @@
 #include "global_config.h"
 #include "OSAL.h"
 #include "OSAL_PwrMgr.h"
+#include "watchdog.h"
 #include "hbox_config.h"
 #include "hbox.h"
 
@@ -31,7 +32,7 @@ static void sys_reset()
 
 static void hw_feed()
 {
-
+    hal_watchdog_feed();
 }
 
 
