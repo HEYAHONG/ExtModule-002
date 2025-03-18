@@ -408,6 +408,8 @@ void dbg_printf(const char* format, ...)
     va_end(args);
 }
 
+void uart0_Hdl(uart_Evt_t* event);
+
 void dbg_printf_init(void)
 {
     uart_Cfg_t cfg =
@@ -421,7 +423,7 @@ void dbg_printf_init(void)
         .hw_fwctrl = FALSE,
         .use_tx_buf = FALSE,
         .parity     = FALSE,
-        .evt_handler = NULL,
+        .evt_handler = uart0_Hdl,
     };
     hal_uart_init(cfg, UART0);//uart init
 }

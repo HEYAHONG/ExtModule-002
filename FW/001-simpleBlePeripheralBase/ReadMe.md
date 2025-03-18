@@ -8,6 +8,8 @@
 
 调试串口同烧录串口（UART0），占用P9、P10引脚，串口参数为115200 8N1。
 
+调试时推荐采用[putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/)调试。
+
 # 固件
 
 当成功编译后，hex文件可在bin目录找到。

@@ -20,6 +20,31 @@ static void hputchar(char c)
     hal_uart_send_buff(UART0, (uint8_t*)&c, sizeof(c));
 }
 
+static uint8_t uart0_rx_buffer[256]= {0};
+void uart0_Hdl(uart_Evt_t* event)
+{
+    if(event!=NULL)
+    {
+        switch(event->type)
+        {
+        case UART_EVT_TYPE_RX_DATA:
+        case UART_EVT_TYPE_RX_DATA_TO:
+        {
+            hringbuf_t * buffer=hringbuf_get(uart0_rx_buffer,sizeof(uart0_rx_buffer));
+            if(event->data!=NULL && event->len > 0)
+            {
+                hringbuf_input(buffer,event->data,event->len);
+            }
+        }
+        break;
+        default:
+        {
+        }
+        break;
+        }
+    }
+}
+
 static void sys_reset()
 {
     NVIC_SystemReset();
@@ -35,6 +60,47 @@ static void hw_feed()
     hal_watchdog_feed();
 }
 
+/*
+ * shell相关变量
+ */
+static int hbox_shell_putchar(int ch)
+{
+    if(ch>0)
+    {
+        hputchar(ch&0xFF);
+    }
+    return ch;
+
+}
+static int hbox_shell_getchar(void)
+{
+    int ch=EOF;
+    {
+        hringbuf_t * buffer=hringbuf_get(uart0_rx_buffer,sizeof(uart0_rx_buffer));
+        if(hringbuf_get_length(buffer))
+        {
+            uint8_t ch_val=0;
+            hringbuf_output(buffer,&ch_val,sizeof(ch_val));
+            ch=ch_val;
+        }
+    }
+    return ch;
+}
+
+static void hbox_shell_init(void)
+{
+    hbox_shell_putchar('\r');
+    hbox_shell_putchar('\n');
+    hshell_context_external_api_t api=hshell_context_default_external_api();
+    api.getchar=hbox_shell_getchar;
+    api.putchar=hbox_shell_putchar;
+    hshell_external_api_set(NULL,api);
+}
+
+static void hbox_shell_loop(void)
+{
+    while(0==hshell_loop(NULL));
+}
 
 /*
  * hbox初始化
@@ -45,16 +111,17 @@ void hbox_init(void)
     h3rdparty_init();
     hprintf_set_callback(hputchar);
 
-    hprintf("HBox Init.\r\n");
-    hprintf("build time %04d/%02d/%02d %02d:%02d:%02d\r\n",hcompiler_get_date_year(),hcompiler_get_date_month(),hcompiler_get_date_day(),hcompiler_get_time_hour(),hcompiler_get_time_minute(),hcompiler_get_time_second());
-
-
 
     //初始化看门狗
     hwatchdog_set_hardware_dog_feed(hw_feed);
     hwatchdog_setup_software_dog(sys_reset,hbox_tick_get);
 
+    //初始化shell
+    hbox_shell_init();
+
 }
+
+
 
 /*
  * hbox节拍,默认1ms调用一次
@@ -68,11 +135,9 @@ void hbox_tick(void)
         //每10tick喂狗一次
         HWATCHDOG_FEED();
     }
-    if((current_tick%3000)==0)
-    {
-        //每3000tick打印一次信息
-        hprintf("HBox Tick=%08X.\r\n",(int)hdefaults_tick_get());
-    }
+
+    //运行shell循环
+    hbox_shell_loop();
 }
 
 static __IO int critical_nested=0;
