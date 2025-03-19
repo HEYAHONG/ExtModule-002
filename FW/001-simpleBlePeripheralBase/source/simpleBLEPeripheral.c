@@ -443,7 +443,7 @@ void SimpleBLEPeripheral_Init( uint8 task_id )
         llInitFeatureSet2MPHY(TRUE);
         llInitFeatureSetDLE(TRUE);
         ATT_SetMTUSizeMax(mtuSet);
-        LOG("[2Mbps | DLE | MTU %d] \n",mtuSet);
+        LOG("[2Mbps | DLE | MTU %d] \r\n",mtuSet);
     }
 
     // Setup a delayed profile startup
@@ -451,10 +451,10 @@ void SimpleBLEPeripheral_Init( uint8 task_id )
     // for receive HCI complete message
     GAP_RegisterForHCIMsgs(simpleBLEPeripheral_TaskID);
     LL_PLUS_PerStats_Init(&g_perStatsByChanTest);
-    LOG("======================SimpleBLEPeripheral_Init Done====================\n");
+    LOG("======================SimpleBLEPeripheral_Init Done====================\r\n");
     // Æô¶¯HBox
     osal_set_event( simpleBLEPeripheral_TaskID, HBOX_INIT_EVT );
-    LOG("======================HBox Start====================\n");
+    LOG("======================HBox Start====================\r\n");
 }
 
 /*********************************************************************
@@ -542,12 +542,12 @@ uint16 SimpleBLEPeripheral_ProcessEvent( uint8 task_id, uint16 events )
 
             if(SUCCESS==status)
             {
-                LOG("[NOTF_TX] %02x %4x\n",status,notifyCnt);
+                LOG("[NOTF_TX] %02x %4x\r\n",status,notifyCnt);
                 notifyCnt++;
             }
             else
             {
-                LOG("[NOTF_TX ERR] %02x %4x\n",status,notifyCnt);
+                LOG("[NOTF_TX ERR] %02x %4x\r\n",status,notifyCnt);
                 break;
             }
         }
@@ -571,7 +571,7 @@ uint16 SimpleBLEPeripheral_ProcessEvent( uint8 task_id, uint16 events )
     if ( events & SBP_ENABLE_SCAN_EVT )
     {
         uint8_t ret=GAP_DeviceDiscoveryRequest(&sbp_scanparam);
-        LOG("START SCAN %d\n",ret);
+        LOG("START SCAN %d\r\n",ret);
         return ( events ^ SBP_ENABLE_SCAN_EVT );
     }
 
@@ -630,13 +630,13 @@ static void simpleBLEPeripheral_ProcessGAPMsg( gapEventHdr_t* pMsg )
             if(i==scannum)
             {
                 LOG("[ADV] %2d dBm [TYPE]%02x [ADDR][%02x]  ",pKt->rssi,pKt->eventType,pKt->addrType);
-                LOG("0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x\n",pKt->addr[0],pKt->addr[1],\
+                LOG("0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x\r\n",pKt->addr[0],pKt->addr[1],\
                     pKt->addr[2],pKt->addr[3],pKt->addr[4],pKt->addr[5]);
                 // for(i=0;i<pKt->dataLen;i++)
                 // {
                 //     LOG("0x%02x ",pKt->pEvtData[i]);
                 // }
-                // LOG("\n");
+                // LOG("\r\n");
                 scanlist[scannum].eventType = pKt->eventType;
                 scanlist[scannum].addrType = pKt->addrType;
                 osal_memcpy(scanlist[scannum].addr,pKt->addr,6);
@@ -671,7 +671,7 @@ static void simpleBLEPeripheral_ProcessOSALMsg( osal_event_hdr_t* pMsg )
         {
         case HCI_COMMAND_COMPLETE_EVENT_CODE:
             pHciMsg = (hciEvt_CmdComplete_t*)pMsg;
-            LOG("==> HCI_COMMAND_COMPLETE_EVENT_CODE: %x\n", pHciMsg->cmdOpcode);
+            LOG("==> HCI_COMMAND_COMPLETE_EVENT_CODE: %x\r\n", pHciMsg->cmdOpcode);
             //safeToDealloc = gapProcessHCICmdCompleteEvt( (hciEvt_CmdComplete_t *)pMsg );
             break;
 
@@ -782,7 +782,7 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
     }
 
     gapProfileState = newState;
-    LOG("[GAP ROLE %d]\n",newState);
+    LOG("[GAP ROLE %d]\r\n",newState);
     VOID gapProfileState;
 }
 
@@ -804,14 +804,14 @@ static void simpleProfileChangeCB( uint8 paramID )
     {
     case SIMPLEPROFILE_CHAR5:
         SimpleProfile_GetParameter( SIMPLEPROFILE_CHAR5, newValue );
-        LOG("[WRT_ATT] %02x \n",newValue[0]);
+        LOG("[WRT_ATT] %02x \r\n",newValue[0]);
 
         //===============================================================================
         // 0xff reset to connectable adv
         if (newValue[0] == 0xff)
         {
             otaAdvIntv = newValue[1];
-            LOG("[AdvIntv CONNECT] %04d\n",otaAdvIntv*10);
+            LOG("[AdvIntv CONNECT] %04d\r\n",otaAdvIntv*10);
             // option:
             // 1. reset
             // 2. reset advertisement
@@ -822,7 +822,7 @@ static void simpleProfileChangeCB( uint8 paramID )
         else if(newValue[0]==0xfe)
         {
             otaAdvIntv = newValue[1];
-            LOG("[AdvIntv NONCONN] %04d\n",otaAdvIntv*10);
+            LOG("[AdvIntv NONCONN] %04d\r\n",otaAdvIntv*10);
             // option:
             // 1. reset
             // 2. reset advertisement
@@ -848,13 +848,13 @@ static void simpleProfileChangeCB( uint8 paramID )
         //     };
         //     if (newValue[1] == 0)
         //     {
-        //         LOG("PWR OFF\n");
+        //         LOG("PWR OFF\r\n");
         //         hal_pwrmgr_poweroff(&cfg, 1);
         //     }
         //     else
         //     {
         //         cfg.on_time = 1000*newValue[1];
-        //         LOG("STANDBY on time %d\n",cfg.on_time);
+        //         LOG("STANDBY on time %d\r\n",cfg.on_time);
         //         hal_pwrmgr_enter_standby(&cfg,1);
         //     }
         // }
@@ -903,11 +903,11 @@ static void simpleProfileChangeCB( uint8 paramID )
 
             if(connEvtEndNotify)
             {
-                LOG("[Notf_Conn] p%d ni%d ci%d\n",notifyPktNum,notifyInterval,connIntv);
+                LOG("[Notf_Conn] p%d ni%d ci%d\r\n",notifyPktNum,notifyInterval,connIntv);
             }
             else
             {
-                LOG("[Notify   ] p%d ni%d ci%d\n",notifyPktNum,notifyInterval,connIntv);
+                LOG("[Notify   ] p%d ni%d ci%d\r\n",notifyPktNum,notifyInterval,connIntv);
             }
         }
         //===============================================================================
@@ -923,7 +923,7 @@ static void simpleProfileChangeCB( uint8 paramID )
             uint16 desired_slave_latency = otaConnIntvLatency;
             uint16 desired_conn_timeout = otaConnTimeOut*100;
             uint8 updateConnParams = true;
-            LOG("[ConnPara] %04d %04d L%02d T%02d\n",desired_min_interval,
+            LOG("[ConnPara] %04d %04d L%02d T%02d\r\n",desired_min_interval,
                 desired_max_interval,
                 desired_slave_latency,
                 desired_conn_timeout);
@@ -938,7 +938,7 @@ static void simpleProfileChangeCB( uint8 paramID )
         else if(newValue[0]==0x02)
         {
             g_ATT_MTU_SIZE_MAX = newValue[1];
-            LOG("[MTU SIZE MAX] %02d\n",g_ATT_MTU_SIZE_MAX);
+            LOG("[MTU SIZE MAX] %02d\r\n",g_ATT_MTU_SIZE_MAX);
         }
         //===============================================================================
         // [0x03 a1 a2] :set pdu length  ,a1 is the pdulength
@@ -948,7 +948,7 @@ static void simpleProfileChangeCB( uint8 paramID )
             uint16 txTime = (pduLen+10+4)<<3;
             HCI_LE_SetDataLengthCmd(0,pduLen, txTime);
 //        uint8 status=HCI_PPLUS_DateLengthChangedNoticeCmd(simpleBLEPeripheral_TaskID, SBP_DLE_CHANGE_EVT);
-//        LOG_DEBUG("[DLE] %02d %02d %d\n",pduLen,txTime,status);
+//        LOG_DEBUG("[DLE] %02d %02d %d\r\n",pduLen,txTime,status);
         }
         //===============================================================================
         // [0x05 a1 a2] :set phy mode
@@ -969,7 +969,7 @@ static void simpleProfileChangeCB( uint8 paramID )
 
             HCI_LE_SetPhyMode(0,allPhy, txPhy,txPhy,0);//tx/rx set as same phy
 //        uint8 status=HCI_PPLUS_PhyUpdateNoticeCmd(simpleBLEPeripheral_TaskID, SBP_PHY_UPDATE_EVT);
-//        LOG_DEBUG("[PHY] %02d %02d %d\n",allPhy,txPhy,status);
+//        LOG_DEBUG("[PHY] %02d %02d %d\r\n",allPhy,txPhy,status);
         }
 
 
@@ -1083,7 +1083,7 @@ void check_PerStatsProcess(void)
     for(uint8 i=0; i<37; i++)
     {
         LL_PLUS_PerStasReadByChn(i,&perStats);
-        LOG("[PER] %02d %05d %05d %05d %05d %05d %05d\n",i,perStats.connEvtCnt,
+        LOG("[PER] %02d %05d %05d %05d %05d %05d %05d\r\n",i,perStats.connEvtCnt,
             perStats.rxNumPkts,
             perStats.rxNumCrcErr,
             perStats.rxToCnt,
@@ -1098,7 +1098,7 @@ void check_PerStatsProcess(void)
     }
 
     LOG("TOTAL ch connN rxNum rxCrc rxToN txAck txRty \r");
-    LOG("\n[PER] -- %05d %05d %05d %05d %05d %05d\n",perConnEvtTotal,
+    LOG("\r\n[PER] -- %05d %05d %05d %05d %05d %05d\r\n",perConnEvtTotal,
         perRxNumTotal,
         perRxCrcErrTotal,
         perRxToCntTotal,

@@ -272,13 +272,13 @@ int  main(void)
         rf_phy_direct_test();
     }
 
-    LOG("SDK Version ID %08x \n",SDK_VER_RELEASE_ID);
-    LOG("MAX_NUM_LL_CONN %d , GATT_MAX_NUM_CONN %d\n",MAX_NUM_LL_CONN,GATT_MAX_NUM_CONN);
-    LOG("rfClk %d rcClk %d sysClk %d tpCap[%02x %02x]\n",g_rfPhyClkSel,g_clk32K_config,g_system_clk,g_rfPhyTpCal0,g_rfPhyTpCal1);
-    LOG("sizeof(struct ll_pkt_desc) = %d, buf size = %d\n", sizeof(struct ll_pkt_desc), BLE_CONN_BUF_SIZE);
-    LOG("sizeof(g_pConnectionBuffer) = %d, sizeof(pConnContext) = %d, sizeof(largeHeap)=%d \n",\
+    LOG("SDK Version ID %08x \r\n",SDK_VER_RELEASE_ID);
+    LOG("MAX_NUM_LL_CONN %d , GATT_MAX_NUM_CONN %d\r\n",MAX_NUM_LL_CONN,GATT_MAX_NUM_CONN);
+    LOG("rfClk %d rcClk %d sysClk %d tpCap[%02x %02x]\r\n",g_rfPhyClkSel,g_clk32K_config,g_system_clk,g_rfPhyTpCal0,g_rfPhyTpCal1);
+    LOG("sizeof(struct ll_pkt_desc) = %d, buf size = %d\r\n", sizeof(struct ll_pkt_desc), BLE_CONN_BUF_SIZE);
+    LOG("sizeof(g_pConnectionBuffer) = %d, sizeof(pConnContext) = %d, sizeof(largeHeap)=%d \r\n",\
         sizeof(g_pConnectionBuffer), sizeof(pConnContext),sizeof(g_largeHeap));
-    LOG("[REST CAUSE] %d\n ",g_system_reset_cause);
+    LOG("[REST CAUSE] %d\r\n ",g_system_reset_cause);
     app_main();
 }
 
