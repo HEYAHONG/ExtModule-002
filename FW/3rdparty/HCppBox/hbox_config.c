@@ -179,3 +179,11 @@ static int cmd_version(int argc,const char *argv[])
 }
 
 HSHELL_COMMAND_EXPORT(version,cmd_version,show version);
+
+static int  cmd_reboot(int argc,const char *argv[])
+{
+    NVIC_SystemReset();
+    return 0;
+}
+
+HSHELL_COMMAND_EXPORT(reboot,cmd_reboot,reboot system);

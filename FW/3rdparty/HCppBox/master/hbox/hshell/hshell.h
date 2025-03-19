@@ -12,6 +12,7 @@
 #include "string.h"
 #include "stdbool.h"
 #include "stdint.h"
+#include "hcompiler.h"
 #include "hdefaults.h"
 
 #ifdef __cplusplus
@@ -245,15 +246,15 @@ hshell_context_t * hshell_context_get_from_main_argv(int argc,const char *argv[]
  */
 #define HSHELL_COMMAND_EXPORT(name,entry,help) \
     __SECTION("HShellCommand")\
-    static const hshell_command_t hshell_command_##name = \
+    static const hshell_command_t hshell_commands_##name = \
     {\
         (hshell_command_entry_t)entry,\
         #name ,\
-				#help \
+        #help \
 	  }
 
 /*
- * 注册命令（注意:此宏定义会占用hsell上下文的命令数组）
+ * 注册命令（注意:此宏定义会占用hshell上下文的命令数组）
  */
 extern const  int HShellCommand$$Base;
 extern const  int HShellCommand$$Limit;
