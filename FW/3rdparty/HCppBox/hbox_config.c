@@ -95,6 +95,7 @@ static void hbox_shell_init(void)
     api.getchar=hbox_shell_getchar;
     api.putchar=hbox_shell_putchar;
     hshell_external_api_set(NULL,api);
+    HSHELL_COMMANDS_REGISTER(NULL);	//×¢²áÃüÁî
 }
 
 static void hbox_shell_loop(void)
@@ -170,3 +171,11 @@ void hbox_free(void *ptr)
     osal_mem_free(ptr);
 }
 
+static int cmd_version(int argc,const char *argv[])
+{
+    hshell_context_t * hshell_ctx=hshell_context_get_from_main_argv(argc,argv);
+    hshell_printf(hshell_ctx,"SDK Version %08X\r\n",SDK_VER_RELEASE_ID);
+    return 0;
+}
+
+HSHELL_COMMAND_EXPORT(version,cmd_version,show version);
