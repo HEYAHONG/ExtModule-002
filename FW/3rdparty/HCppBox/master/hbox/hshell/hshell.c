@@ -19,6 +19,7 @@ hshell_context_external_api_t hshell_context_default_external_api(void)
     hshell_context_external_api_t api= {0};
     api.getchar=getchar;
     api.putchar=putchar;
+    api.invoke_command=NULL;
     return api;
 }
 
@@ -55,6 +56,7 @@ void hshell_context_init(hshell_context_t *ctx)
     real_context->flags.prompt=0;
     real_context->flags.escape=0;
     real_context->flags.return_newline_compatible=0;
+    real_context->flags.input_complete=0;
     real_context->flags.echo=1;         //默认打开回显
     real_context->flags.show_banner=1;  //默认显示banner
     memset(real_context->buffer,0,sizeof(real_context->buffer));
@@ -244,7 +246,7 @@ static int hshell_process_execute_command(hshell_context_t *ctx,int argc,const c
             if(argv[1]==NULL || strlen(argv[1])==0)
             {
                 hshell_printf(context,"internal command:\r\n");
-                hshell_printf(context,"-------\t-------------\r\n");
+                hshell_printf(context,"-----------------\r\n");
                 hshell_printf(context,"\texit      exit shell             \r\n");
                 hshell_printf(context,"\thelp      show help              \r\n");
                 if(context->command.array_base!=NULL && context->command.array_count!=0)
@@ -343,7 +345,8 @@ static int hshell_process_execute_command(hshell_context_t *ctx,int argc,const c
                 {
                     if(context->command.array_base[i].entry!=NULL)
                     {
-                        ret=context->command.array_base[i].entry(argc,argv);
+                        ret=0;
+                        context->command_exit_code=context->command.array_base[i].entry(argc,argv);
                     }
                     command_processed=true;
                     break;
@@ -354,10 +357,20 @@ static int hshell_process_execute_command(hshell_context_t *ctx,int argc,const c
 
     if(!command_processed)
     {
+        if(context->api.invoke_command!=NULL)
+        {
+            ret=0;
+            context->command_exit_code=context->api.invoke_command(argc,argv);
+            command_processed=true;
+        }
+    }
+
+    if(!command_processed)
+    {
         hshell_printf(context,"%s not found!\r\n",argv[0]);
         for(int i=0; i<argc; i++)
         {
-            hshell_printf(context,"argv%d=%s\r\n",(int)i,argv[i]);
+            hshell_printf(context,"\targv%d=%s\r\n",(int)i,argv[i]);
         }
     }
 
@@ -567,6 +580,32 @@ static int hshell_process_control(hshell_context_t *ctx)
     return ret;
 }
 
+
+static int hshell_process_input_start_execute(hshell_context_t *ctx)
+{
+    int ret=0;
+    hshell_context_t *context=hshell_context_check_context(ctx);
+    context->buffer_ptr=strlen((char *)context->buffer);//将指针放在末尾
+    ret=hshell_process_execute(context);
+    return ret;
+}
+
+static bool hshell_process_input_check_complete(hshell_context_t *ctx)
+{
+    hshell_context_t *context=hshell_context_check_context(ctx);
+    if(context->flags.input_complete!=0)
+    {
+        context->flags.input_complete=0;
+        return true;
+    }
+    if(context->buffer_ptr == (sizeof(context->buffer)-1))
+    {
+        //缓冲区溢出
+        return true;
+    }
+    return false;
+}
+
 static int hshell_process_input(hshell_context_t *ctx)
 {
     int ret=0;
@@ -587,32 +626,32 @@ static int hshell_process_input(hshell_context_t *ctx)
         need_echo=false;
     }
     break;
+    case 0x09:  //HT,水平制表符，可通过Tab触发
+    {
+        need_echo=false;
+    }
+    break;
     case '\r':
     {
         context->flags.return_newline_compatible=1;
-        context->buffer_ptr=strlen((char *)context->buffer);//将指针放在末尾
-        ret=hshell_process_execute(context);
-
+        context->flags.input_complete=1;
     }
     break;
     case '\n':
     {
         //处理字符串
-
-        context->buffer_ptr=strlen((char *)context->buffer);//将指针放在末尾
         if( context->buffer_ptr>0)
         {
-            context->flags.return_newline_compatible=0;
-            ret=hshell_process_execute(context);
+            context->flags.input_complete=1;
         }
         else
         {
             if(context->flags.return_newline_compatible==0)
             {
-                ret=hshell_process_execute(context);
+                context->flags.input_complete=1;
             }
-            context->flags.return_newline_compatible=0;
         }
+        context->flags.return_newline_compatible=0;
     }
     break;
 #if defined(HCOMPILER_MSVC)
@@ -662,9 +701,9 @@ static int hshell_process_input(hshell_context_t *ctx)
             {
                 hshell_printf(context,"\b");
             }
-            need_echo=false;
             context->buffer_ptr--;
         }
+        need_echo=false;
     }
     break;
     default:
@@ -677,14 +716,16 @@ static int hshell_process_input(hshell_context_t *ctx)
                 context->buffer[context->buffer_ptr++]=ch_val;
             }
         }
-        if(context->buffer_ptr == (sizeof(context->buffer)-1))
-        {
-            context->buffer[context->buffer_ptr]='\0';
-            ret=hshell_process_execute(context);
-        }
     }
     break;
     }
+
+    //检查是否可执行
+    if(hshell_process_input_check_complete(ctx))
+    {
+        ret=hshell_process_input_start_execute(ctx);
+    }
+
     //回显字符
     if(context->flags.echo!=0 && need_echo)
     {

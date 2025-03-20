@@ -26,8 +26,9 @@ extern "C"
 
 typedef struct
 {
-    int (*getchar)(void);       /**< 获取字符，返回8位字符，失败返回EOF */
-    int (*putchar)(int ch);     /**< 输出字符，参数为8位字符 */
+    int (*getchar)(void);                                   /**< 获取字符，返回8位字符，失败返回EOF */
+    int (*putchar)(int ch);                                 /**< 输出字符，参数为8位字符 */
+    int (*invoke_command)(int argc,const char *argv[]);     /**< 启动命令。注意：此api的优先级是最低的，仅当其它执行方式失败时才使用此api */
 } hshell_context_external_api_t;         /**< 外部API */
 
 /** \brief hshell 获取默认的外部API
@@ -72,6 +73,7 @@ struct hshell_context
         uint32_t prompt:1;                      /**< 当prompt为0时，将打印提示字符串并置为1 */
         uint32_t escape:1;                      /**< 收到特殊转义序列，为1将进入转义序列处理过程 */
         uint32_t return_newline_compatible:1;   /**< 兼容\r\n,由第一个\r触发执行,等于1时表示刚刚通过\r执行 */
+        uint32_t input_complete:1;              /**< 当此值为1时，输入检查函数将返回true并将此值设置为0 */
         uint32_t echo:1;                        /**< 是否回显 */
         uint32_t show_banner:1;                 /**< 是否显示banner */
     } flags;                                    /**< 标志 */
@@ -82,6 +84,7 @@ struct hshell_context
         hshell_command_t *array_base;           /**< 命令数组首地址 */
         size_t array_count;                     /**< 命令数组中命令的个数 */
     } command;                                  /**< 命令 */
+    int command_exit_code;                      /**< 最近一次命令（非内部命令）的退出代码 */
     uint8_t  escape_sequence[8];                /**< 转义序列 */
 };
 
