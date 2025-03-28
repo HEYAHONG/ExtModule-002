@@ -89,8 +89,6 @@ static int hbox_shell_getchar(void)
 
 static void hbox_shell_init(void)
 {
-    hbox_shell_putchar('\r');
-    hbox_shell_putchar('\n');
     hshell_context_external_api_t api=hshell_context_default_external_api();
     api.getchar=hbox_shell_getchar;
     api.putchar=hbox_shell_putchar;
