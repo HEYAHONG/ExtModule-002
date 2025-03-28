@@ -14,6 +14,7 @@
 #include "stdint.h"
 #include "hcompiler.h"
 #include "hdefaults.h"
+#include "hshell_defaults.h"
 #include "hshell_ctlseq.h"
 
 #ifdef __cplusplus
@@ -21,9 +22,6 @@ extern "C"
 {
 #endif // __cplusplus
 
-#ifndef EOF
-#define EOF (-1)
-#endif // EOF
 
 typedef struct
 {
@@ -47,16 +45,7 @@ hshell_context_external_api_t hshell_context_default_external_api(void);
  */
 const char * hshell_context_default_prompt_string(void);
 
-/*
- * hshell缓冲大小，此大小限制了用户一个命令的最大长度
- */
-#ifndef HSHELL_CONTEXT_BUFFER_SIZE
-#if defined(HDEFAULTS_OS_UNIX) || defined(HDEFAULTS_OS_WINDOWS)
-#define HSHELL_CONTEXT_BUFFER_SIZE 4096
-#else
-#define HSHELL_CONTEXT_BUFFER_SIZE 64
-#endif
-#endif // HSHELL_CONTEXT_BUFFER_SIZE
+
 
 struct hshell_command;
 typedef struct hshell_command hshell_command_t;
@@ -78,9 +67,10 @@ struct hshell_context
         uint32_t insert_mode:1;                 /**< 输入时是否采用插入模式，为1时为插入模式（即新字符插入当前字符串），默认为覆盖模式（即直接覆盖当前字符） */
         uint32_t echo:1;                        /**< 是否回显 */
         uint32_t show_banner:1;                 /**< 是否显示banner */
+        uint32_t command_name_shortcut:1;       /**< 当此值为1时，当用户输入的命令名称匹配某个命令的前几个字母时视为匹配成功 */
     } flags;                                    /**< 标志 */
     uint8_t buffer[HSHELL_CONTEXT_BUFFER_SIZE]; /**< 缓冲 */
-    size_t  buffer_ptr;
+    size_t  buffer_ptr;                         /**< 缓冲指针 */
     struct
     {
         hshell_command_t *array_base;           /**< 命令数组首地址 */
@@ -88,6 +78,19 @@ struct hshell_context
     } command;                                  /**< 命令 */
     int command_exit_code;                      /**< 最近一次命令的退出代码 */
     uint8_t  escape_sequence[12];               /**< 转义序列 */
+    struct
+    {
+        hshell_context_t *next;                 /**< 下一个上下文，当此指针不为空时，循环将直接进入此指针所指的上下文 */
+        hshell_context_t *prev;                 /**< 原上下文，当此指针不为空时，表示现在的上下文是作为子上下文存在的 */
+    } sub_context;                              /**< 子上下文，允许进入子上下文(此时原上下文处于不活跃状态)*/
+#if HSHELL_MAX_HISTORY_COUNT > 0
+    struct
+    {
+        uint8_t history[HSHELL_MAX_HISTORY_COUNT][HSHELL_CONTEXT_BUFFER_SIZE];  /**< 历史记录 */
+        size_t store_ptr;                                                       /**< 当前保存的历史记录的指针 */
+        size_t load_ptr;                                                        /**< 当前加载的历史记录的指针 */
+    } history;
+#endif // HSHELL_MAX_HISTORY_COUNT
 };
 
 /** \brief hshell 获取获取默认上下文
@@ -177,6 +180,24 @@ bool hshell_show_banner_set(hshell_context_t *ctx,bool show_banner);
  */
 bool hshell_show_banner_get(hshell_context_t *ctx);
 
+/** \brief hshell命令名称shortcut设置
+ *
+ * \param ctx hshell_context_t* hshell上下文,为NULL时使用默认上下文
+ * \param  command_name_shortcut bool 命令名称shortcut设置
+ * \return bool 命令名称shortcut设置
+ *
+ */
+bool hshell_command_name_shortcut_set(hshell_context_t *ctx,bool command_name_shortcut);
+
+
+/** \brief hshell获取命令名称shortcut设置
+ *
+ * \param ctx hshell_context_t* hshell上下文,为NULL时使用默认上下文
+ * \return bool 命令名称shortcut设置
+ *
+ */
+bool hshell_command_name_shortcut_get(hshell_context_t *ctx);
+
 /** \brief hshell设置命令数组
  *
  * \param ctx hshell_context_t* hshell上下文,为NULL时使用默认上下文
@@ -234,17 +255,27 @@ int hshell_execute(hshell_context_t *ctx,char *cmdline);
 int hshell_loop(hshell_context_t *ctx);
 
 
-/*
- * 最大的argc大小
+/** \brief hshell进入上下文
+ *
+ * \param ctx hshell_context_t* 当前上下文
+ * \param next_ctx hshell_context_t* 子上下文，不可为NULL，注意：子上下文一般不能在栈上分配。
+ *
  */
-#ifndef HSHELL_MAX_ARGC
-#if defined(HDEFAULTS_OS_UNIX) || defined(HDEFAULTS_OS_WINDOWS)
-#define HSHELL_MAX_ARGC 256
-#else
-#define HSHELL_MAX_ARGC 8
-#endif
-#endif // HSHELL_MAX_ARGC
+void hshell_subcontext_enter(hshell_context_t *ctx,hshell_context_t *next_ctx);
 
+/** \brief hshell退出子上下文（由原上下文调用）
+ *
+ * \param ctx hshell_context_t* 原上下文
+ *
+ */
+void hshell_subcontext_exit(hshell_context_t *ctx);
+
+/** \brief hshell退出子上下文（由子上下文调用）
+ *
+ * \param sub_ctx hshell_context_t* 子上下文，不可为NULL
+ *
+ */
+void hshell_subcontext_exit_from_sub(hshell_context_t *sub_ctx);
 
 /** \brief 命令入口
  */

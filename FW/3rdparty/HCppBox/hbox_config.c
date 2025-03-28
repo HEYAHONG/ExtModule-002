@@ -95,6 +95,7 @@ static void hbox_shell_init(void)
     api.getchar=hbox_shell_getchar;
     api.putchar=hbox_shell_putchar;
     hshell_external_api_set(NULL,api);
+    hshell_command_name_shortcut_set(NULL,true);
     HSHELL_COMMANDS_REGISTER(NULL);	//×¢²áÃüÁî
 }
 
