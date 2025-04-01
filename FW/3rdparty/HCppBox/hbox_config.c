@@ -6,6 +6,7 @@
 #include "watchdog.h"
 #include "hbox_config.h"
 #include "hbox.h"
+#include "time.h"
 
 hdefaults_tick_t hbox_tick_get(void)
 {
@@ -136,6 +137,9 @@ void hbox_tick(void)
         HWATCHDOG_FEED();
     }
 
+    //调用更新时间
+    time(NULL);
+
     //运行shell循环
     hbox_shell_loop();
 }
@@ -187,7 +191,7 @@ static int  cmd_reboot(int argc,const char *argv[])
 
 HSHELL_COMMAND_EXPORT(reboot,cmd_reboot,reboot system);
 
-#include "time.h"
+
 static int cmd_datetime_entry(int argc,const char *argv[])
 {
     hshell_context_t * hshell_ctx=hshell_context_get_from_main_argv(argc,argv);
@@ -204,9 +208,22 @@ HSHELL_COMMAND_EXPORT(datetime,cmd_datetime_entry,show datetime);
  * 移植time,通过set_time修改时间
  */
 static time_t time_offset=0;
+static hdefaults_tick_t last_tick=0;
+static uint32_t	tick_overflow=0;//溢出次数
+static uint64_t get_tick64(void)
+{
+    hdefaults_tick_t tick=hbox_tick_get();
+    if(last_tick > tick)
+    {
+        //溢出
+        tick_overflow++;
+    }
+    last_tick=tick;
+    return (tick+tick_overflow*0x100000000ULL);
+}
 time_t time(time_t *timer)
 {
-    time_t ret=hbox_tick_get()/1000;
+    time_t ret=get_tick64()/1000;
     ret+=time_offset;
     if(timer!=NULL)
     {
@@ -220,7 +237,7 @@ time_t time(time_t *timer)
  */
 void set_time(time_t new_time)
 {
-    time_t base=hbox_tick_get()/1000;
+    time_t base=get_tick64()/1000;
     time_offset=(time_t)(new_time-base);
 }
 static int cmd_set_datetime_entry(int argc,const char *argv[])
