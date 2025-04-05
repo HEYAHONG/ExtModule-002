@@ -21,7 +21,7 @@ static void hputchar(char c)
     hal_uart_send_buff(UART0, (uint8_t*)&c, sizeof(c));
 }
 
-static uint8_t uart0_rx_buffer[256]= {0};
+static uint8_t uart0_rx_buffer[128]= {0};
 void uart0_Hdl(uart_Evt_t* event)
 {
     if(event!=NULL)
@@ -163,6 +163,7 @@ void hbox_exit_critical()
     }
 }
 
+#ifndef USING_HMEMORYHEAP
 
 void * hbox_malloc(size_t bytes)
 {
@@ -173,6 +174,18 @@ void hbox_free(void *ptr)
 {
     osal_mem_free(ptr);
 }
+
+#else
+static int cmd_free(int argc,const char *argv[])
+{
+    hshell_context_t * hshell_ctx=hshell_context_get_from_main_argv(argc,argv);
+    size_t total=0,free=0;
+    hmemoryheap_get_info(&total,&free);
+    hshell_printf(hshell_ctx,"total:%d bytes,free: %d bytes\r\n",total,free);
+    return 0;
+}
+HSHELL_COMMAND_EXPORT(free,cmd_free,show meminfo);
+#endif
 
 static int cmd_version(int argc,const char *argv[])
 {
