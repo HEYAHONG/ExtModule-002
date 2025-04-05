@@ -108,6 +108,10 @@ static void hbox_shell_loop(void)
  */
 void hbox_init(void)
 {
+
+    //初始化系统循环槽
+    heventslots_set_slots_to_table(HEVENTSLOTS_SYSTEM_SLOTS_LOOP,NULL);
+
     //初始化库函数
     h3rdparty_init();
     hprintf_set_callback(hputchar);
@@ -142,6 +146,19 @@ void hbox_tick(void)
 
     //运行shell循环
     hbox_shell_loop();
+
+    
+    {
+       /*
+        * 系统循环
+        */
+        heventslots_t *slots_loop=heventslots_get_slots_from_table(HEVENTSLOTS_SYSTEM_SLOTS_LOOP);
+        if(slots_loop!=NULL)
+        {
+            heventslots_emit_signal(slots_loop,NULL);
+        }
+    }
+
 }
 
 static __IO int critical_nested=0;

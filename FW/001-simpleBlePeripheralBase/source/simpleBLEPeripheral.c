@@ -25,6 +25,7 @@
 #include "gattservapp.h"
 #include "devinfoservice.h"
 #include "sbpProfile_ota.h"
+#include "led.h"
 
 #ifdef PHY_OTA_ENABLE
 #include "ota_app_service.h"
@@ -580,6 +581,8 @@ uint16 SimpleBLEPeripheral_ProcessEvent( uint8 task_id, uint16 events )
     if ( events & HBOX_INIT_EVT )
     {
         hbox_init();
+        //初始化LED
+        led_init();
         //启动TICK定时器
         osal_start_reload_timer(simpleBLEPeripheral_TaskID,HBOX_TICK_EVT,1);
         return ( events ^ HBOX_INIT_EVT );

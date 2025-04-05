@@ -603,6 +603,11 @@
               <FileType>1</FileType>
               <FilePath>.\source\devinfoservice.c</FilePath>
             </File>
+            <File>
+              <FileName>led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\source\led.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
