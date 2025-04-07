@@ -155,10 +155,27 @@ int hstacklesscoroutine2_scheduler_start(hstacklesscoroutine2_scheduler_t * sche
         return -1;
     }
     bool all_task_finished=false;
-    hstacklesscoroutine2_ccb_t *  current_ccb=sch->ccb_list_head;
-    size_t ccb_unfinished=0;
+    hstacklesscoroutine2_ccb_t *  current_ccb=NULL;
+    size_t ccb_unfinished=1;//默认至少有一个任务未完成
     while(!all_task_finished)
     {
+        //遍历下一个协程控制块
+        if(current_ccb!=NULL)
+        {
+            current_ccb=current_ccb->next;
+        }
+        if(current_ccb==NULL)
+        {
+            current_ccb=sch->ccb_list_head;
+            if(ccb_unfinished==0)
+            {
+                current_ccb=NULL;
+                all_task_finished=true;
+            }
+            ccb_unfinished=0;
+        }
+
+
         if(current_ccb==NULL)
         {
             break;
@@ -228,8 +245,8 @@ int hstacklesscoroutine2_scheduler_start(hstacklesscoroutine2_scheduler_t * sche
                 current_ccb->state.running_state=HSTACKLESSCOROUTINE2_RUNNING_STATE_RUNNING;
                 if(current_ccb->stack_bottom!=0)
                 {
-                    //栈底置1,提示已从保存的点恢复
-                    (*(int8_t*)current_ccb->stack_bottom)=1;
+                    //栈底置CCB指针,提示已从保存的点恢复
+                    (*(uintptr_t*)current_ccb->stack_bottom)=(uintptr_t)current_ccb;
                 }
                 longjmp(current_ccb->coroutine_point,current_ccb->coroutine_point_status);//从保存的点恢复
             }
@@ -300,18 +317,6 @@ int hstacklesscoroutine2_scheduler_start(hstacklesscoroutine2_scheduler_t * sche
         }
 
 
-        //遍历下一个协程控制块
-        current_ccb=current_ccb->next;
-        if(current_ccb==NULL)
-        {
-            current_ccb=sch->ccb_list_head;
-            if(ccb_unfinished==0)
-            {
-                current_ccb=NULL;
-                all_task_finished=true;
-            }
-            ccb_unfinished=0;
-        }
     }
     return 0;
 }
@@ -349,11 +354,12 @@ void hstacklesscoroutine2_yield(hstacklesscoroutine2_scheduler_t * sch,hstackles
         return;
     }
 #ifdef HSTACKLESSCOROUTINE2_BARE_MACHINE
-    uint8_t stack_bottom=0;//栈底非0表示从调度器返回
+    uintptr_t stack_bottom=0;//栈底非0表示从调度器返回(此时表示现在CCB指针)
     ccb->stack_bottom=(uintptr_t)&stack_bottom;
-    ccb->coroutine_point_status=setjmp(ccb->coroutine_point);
+    int point_status=setjmp(ccb->coroutine_point);
     if(stack_bottom==0)
     {
+        ccb->coroutine_point_status=point_status;
         if(hstacklesscoroutine2_ccb_running_state_get(ccb)==HSTACKLESSCOROUTINE2_RUNNING_STATE_RUNNING)
         {
             ccb->state.running_state=HSTACKLESSCOROUTINE2_RUNNING_STATE_READY;
@@ -389,6 +395,7 @@ void hstacklesscoroutine2_yield(hstacklesscoroutine2_scheduler_t * sch,hstackles
     }
     else
     {
+        ccb=(hstacklesscoroutine2_ccb_t *)stack_bottom;
         uintptr_t stack_base=ccb->stack_bottom;
         if(ccb->stack_top < stack_base)
         {

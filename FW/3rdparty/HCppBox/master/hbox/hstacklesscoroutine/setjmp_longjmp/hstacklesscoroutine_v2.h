@@ -28,8 +28,24 @@ extern "C"
  * 使用longjmp跳转至被调用的函数是未定义行为，一般只有裸机可支持（裸机一般是通过直接恢复寄存器(如PC与SP)的方式实现 longjmp）
  * 注意:本组件使用了setjmp与longjmp ,可能与C++某些特性兼容性不好，使用局部变量与C++异常时尤其需要注意。
  */
-#if defined(HDEFAULTS_OS_NONE) || defined(HDEFAULTS_LIBC_ARMCLIB)
+
+
+#if defined(HDEFAULTS_OS_NONE)
+#if defined(HDEFAULTS_LIBC_ARMCLIB)
 #define HSTACKLESSCOROUTINE2_BARE_MACHINE    1
+#endif
+#ifdef HDEFAULTS_LIBC_NEWLIB
+#define HSTACKLESSCOROUTINE2_BARE_MACHINE    1
+#endif
+#ifdef HDEFAULTS_LIBC_PICOLIBC
+#define HSTACKLESSCOROUTINE2_BARE_MACHINE    1
+#endif
+#endif
+
+#ifdef HDEFAULTS_OS_UNIX
+#ifdef HDEFAULTS_LIBC_NEWLIB
+#define HSTACKLESSCOROUTINE2_BARE_MACHINE    1
+#endif
 #endif
 
 /*
@@ -243,6 +259,8 @@ void hstacklesscoroutine2_await(hstacklesscoroutine2_scheduler_t * sch,hstackles
  */
 #define  HSTACKLESSCOROUTINE2_BLOCK_START(CCB_NAME)
 #define  HSTACKLESSCOROUTINE2_BLOCK_POINT(CCB_NAME)
+#define  HSTACKLESSCOROUTINE2_BLOCK_LABEL(CCB_NAME,N)
+#define  HSTACKLESSCOROUTINE2_BLOCK_GOTO(SCH,CCB_NAME,N)
 #define  HSTACKLESSCOROUTINE2_BLOCK_END(CCB_NAME)
 
 #else
@@ -269,7 +287,7 @@ void __hstacklesscoroutine2_core_value_set(hstacklesscoroutine2_ccb_t *ccb,int c
         {\
         case __LINE__:
 
-/** \brief 协程块点（下一次进入协程将从此进入），只能在协程任务入口函数中使用。参数为协程控制块指针。
+/** \brief 协程块点（下一次进入协程将从此进入），只能在协程任务入口函数中使用。参数为协程控制块指针。只能在协程块中使用。
  *
  *
  */
@@ -280,6 +298,26 @@ void __hstacklesscoroutine2_core_value_set(hstacklesscoroutine2_ccb_t *ccb,int c
             __hstacklesscoroutine2_core_value_set((CCB_NAME), __LINE__ );\
         }\
         case __LINE__ :
+
+/** \brief 协程标签（配合GOTO使用），只能在协程任务入口函数中使用。参数CCB_NAME为协程控制块指针,参数N为大于0的整数。只能在协程块中使用。
+ *
+ *
+ */
+#define  HSTACKLESSCOROUTINE2_BLOCK_LABEL(CCB_NAME,N) \
+        case -(N) :
+
+
+/** \brief 协程GOTO（配合标签使用），只能在协程任务入口函数中使用。参数SCH为调度器指针，参数CCB_NAME为协程控制块指针,参数N为大于0的整数。只能在协程块中使用。
+ *
+ *
+ */
+#define  HSTACKLESSCOROUTINE2_BLOCK_GOTO(SCH,CCB_NAME,N) \
+        if((CCB_NAME)!=NULL)   \
+        {\
+            __hstacklesscoroutine2_core_value_set((CCB_NAME), -(N) );\
+        }\
+        hstacklesscoroutine2_yield(SCH,CCB_NAME);
+
 
 /** \brief 协程块结束,与协程块起始配对，只能在协程任务入口函数中使用。参数为协程控制块指针。
  *
