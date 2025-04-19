@@ -65,6 +65,7 @@ void led_init(void)
     hal_gpio_pin_init(LED0_PIN,GPIO_OUTPUT);
     hal_gpio_pull_set(LED0_PIN,GPIO_PULL_UP_S);
     hal_gpio_write(LED0_PIN,1);
+#ifndef HRUNTIME_USING_LOOP_SECTION
     {
         heventslots_t *slots_loop=heventslots_get_slots_from_table(HEVENTSLOTS_SYSTEM_SLOTS_LOOP);
         if(slots_loop!=NULL)
@@ -79,7 +80,24 @@ void led_init(void)
             init=false;
         }
     }
+#endif
 }
+
+#ifdef HRUNTIME_USING_INIT_SECTION
+void  hled_init(const hruntime_function_t *func)
+{
+    led_init();
+    hprintf("LED init ok!");
+}
+HRUNTIME_INIT_EXPORT(led,0,hled_init,NULL);
+#endif
+#ifdef HRUNTIME_USING_LOOP_SECTION
+void  hled_loop(const hruntime_function_t *func)
+{
+    led_slot(NULL,NULL);
+}
+HRUNTIME_LOOP_EXPORT(led,0,hled_loop,NULL);
+#endif
 
 static int cmd_led(int argc,const char *argv[])
 {
