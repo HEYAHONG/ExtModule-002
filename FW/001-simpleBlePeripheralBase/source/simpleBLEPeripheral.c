@@ -623,7 +623,6 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
         // Set the GAP Characteristics
         GGS_SetParameter( GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName );
         GAPRole_SetParameter( GAPROLE_ADVERT_ENABLED, sizeof( uint8 ), &initial_advertising_enable );
-        //osal_start_timerEx(simpleBLEPeripheral_TaskID, SBP_RESET_ADV_EVT, 500);
         osal_set_event(simpleBLEPeripheral_TaskID, SBP_RESET_ADV_EVT);
 #if ( HOST_CONFIG & OBSERVER_CFG )
         osal_set_event(simpleBLEPeripheral_TaskID, SBP_ENABLE_SCAN_EVT);
@@ -633,17 +632,23 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
 
     case GAPROLE_ADVERTISING:
     {
-				//广播中
-        
+        //广播中
+
     }
     break;
 
     case GAPROLE_CONNECTED:
+    {
+        //已连接
         HCI_PPLUS_ConnEventDoneNoticeCmd(simpleBLEPeripheral_TaskID, NULL);
-        break;
+    }
+    break;
 
     case GAPROLE_CONNECTED_ADV:
-        break;
+    {
+        //连接+广播
+    }
+    break;
 
     case GAPROLE_WAITING:
         break;
