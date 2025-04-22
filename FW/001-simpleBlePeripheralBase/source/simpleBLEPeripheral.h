@@ -33,7 +33,6 @@ extern "C"
 // Simple BLE Peripheral Task Events
 #define SBP_START_DEVICE_EVT                           0x0001
 #define SBP_ADD_RL_EVT                                 0x0002
-#define SBP_PERIODIC_EVT                               0x0004
 #define SBP_RESET_ADV_EVT                              0x0008
 
 #define HBOX_TICK_EVT																	 0x0010

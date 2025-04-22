@@ -538,16 +538,6 @@
               <FileType>1</FileType>
               <FilePath>..\SDK\ST7H66_SDK_3.1.3.3_240225\components\profiles\GATT\gattservapp.c</FilePath>
             </File>
-            <File>
-              <FileName>ota_app_service.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\SDK\ST7H66_SDK_3.1.3.3_240225\components\profiles\ota_app\ota_app_service.c</FilePath>
-            </File>
-            <File>
-              <FileName>sbpProfile_ota.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\source\sbpProfile_ota.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>

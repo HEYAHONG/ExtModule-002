@@ -38,7 +38,7 @@ LR_ROM_XIP  0x11020000 0x020000 {
    peripheral.o(+RO)
    simplebleperipheral.o(+RO)
    devinfoservice.o(+RO)
-   sbpProfile_ota.o(+RO)
+   ;sbpProfile_ota.o(+RO)
    ;led_light.o(+RO)
    ;pwm.o(+RO)
    ;ota_app_service.o(+RO)

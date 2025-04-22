@@ -24,12 +24,7 @@
 #include "gapgattserver.h"
 #include "gattservapp.h"
 #include "devinfoservice.h"
-#include "sbpProfile_ota.h"
 #include "led.h"
-
-#ifdef PHY_OTA_ENABLE
-#include "ota_app_service.h"
-#endif
 #include "peripheral.h"
 #include "gapbondmgr.h"
 #include "pwrmgr.h"
@@ -136,15 +131,6 @@ extern uint32_t  g_TIM2_wakeup_delay;
 static uint8 simpleBLEPeripheral_TaskID;   // Task ID for internal task/event processing
 
 static gaprole_States_t gapProfileState = GAPROLE_INIT;
-static  uint8_t notifyBuf[256];
-static uint16 notifyInterval = 0;
-static uint8 notifyPktNum = 0;
-static uint8 connEvtEndNotify =0;
-static uint16 notifyCnt = 0;
-
-
-
-
 
 
 // GAP - SCAN RSP data (max size = 31 bytes)
@@ -223,12 +209,6 @@ static uint8 advertData[] =
 };
 
 
-static uint8 otaAdvIntv         = 100;      //unit is 10ms
-static uint8 otaConnIntvMax     = DEFAULT_DESIRED_MIN_CONN_INTERVAL>>2;        //unit is 5ms
-static uint8 otaConnIntvMin     = DEFAULT_DESIRED_MAX_CONN_INTERVAL>>2;        //uiit is 5ms
-static uint8 otaConnIntvLatency = DEFAULT_DESIRED_SLAVE_LATENCY;        //
-static uint8 otaConnTimeOut     = DEFAULT_DESIRED_CONN_TIMEOUT/100;        //unit is second
-
 #if ( HOST_CONFIG & OBSERVER_CFG )
 gapDevDiscReq_t sbp_scanparam;
 #define MAX_SCAN   10
@@ -243,8 +223,6 @@ static uint8 attDeviceName[GAP_DEVICE_NAME_LEN] = "EXTMODULE-002";
 */
 static void simpleBLEPeripheral_ProcessOSALMsg( osal_event_hdr_t* pMsg );
 static void peripheralStateNotificationCB( gaprole_States_t newState );
-static void simpleProfileChangeCB( uint8 paramID );
-static void updateAdvData(void);
 static void peripheralStateReadRssiCB( int8 rssi  );
 
 
@@ -271,11 +249,7 @@ static gapBondCBs_t simpleBLEPeripheral_BondMgrCBs =
     NULL                      // Pairing / Bonding state Callback (not used by application)
 };
 #endif
-// Simple GATT Profile Callbacks
-static simpleProfileCBs_t simpleBLEPeripheral_SimpleProfileCBs =
-{
-    simpleProfileChangeCB    // Charactersitic value change callback
-};
+
 
 /*********************************************************************
     PUBLIC FUNCTIONS
@@ -391,54 +365,7 @@ void SimpleBLEPeripheral_Init( uint8 task_id )
     GGS_AddService( GATT_ALL_SERVICES );            // GAP
     GATTServApp_AddService( GATT_ALL_SERVICES );    // GATT attributes
     DevInfo_AddService();                           // Device Information Service
-#ifdef PHY_OTA_ENABLE
-    ota_app_AddService();
-#endif
-    SimpleProfile_AddService( GATT_ALL_SERVICES );  // Simple GATT Profile
-    // Setup the SimpleProfile Characteristic Values
-    {
-        // uint8  uuid_setting[IBEACON_UUID_LEN] =
-        // {
-        //     0xFD,
-        //     0xA5,
-        //     0x06,
-        //     0x93,
-        //     0xA4,
-        //     0xE2,
-        //     0x4F,
-        //     0xB1,
-        //     0xAF,
-        //     0xCF,
-        //     0xC6,
-        //     0xEB,
-        //     0x07,
-        //     0x64,
-        //     0x78,
-        //     0x25
-        // };
-        // uint16 major = 0x2774;
-        // uint16 minor = 0x6bed;
-        uint8 power = 0x0f;
-        uint8 reset[IBEACON_ATT_LONG_PKT];
 
-        for(uint8 i=0; i<IBEACON_ATT_LONG_PKT; i++)
-        {
-            reset[i]=(i<6) ? 0 : i;
-        }
-
-        // SimpleProfile_SetParameter( SIMPLEPROFILE_CHAR1, IBEACON_UUID_LEN, uuid_setting);
-        // SimpleProfile_SetParameter( SIMPLEPROFILE_CHAR2, sizeof ( uint16 ), &major );
-        // SimpleProfile_SetParameter( SIMPLEPROFILE_CHAR3, sizeof ( uint16 ), &minor );
-        SimpleProfile_SetParameter( SIMPLEPROFILE_CHAR4, sizeof ( uint8 ), &power );
-        SimpleProfile_SetParameter( SIMPLEPROFILE_CHAR5, IBEACON_ATT_LONG_PKT, &reset );
-    }
-
-    //intial notifyBuf
-    for(int i =0 ; i<255; i++)
-        notifyBuf[i]=i;
-
-    // Register callback with SimpleGATTprofile
-    VOID SimpleProfile_RegisterAppCBs( &simpleBLEPeripheral_SimpleProfileCBs );
     {
         uint8_t mtuSet = 247;
         llInitFeatureSet2MPHY(TRUE);
@@ -498,8 +425,6 @@ uint16 SimpleBLEPeripheral_ProcessEvent( uint8 task_id, uint16 events )
         // Start Bond Manager, 2017-11-15
         VOID GAPBondMgr_Register( &simpleBLEPeripheral_BondMgrCBs );
 #endif
-        // Set timer for first periodic event
-        //osal_start_timerEx( simpleBLEPeripheral_TaskID, SBP_PERIODIC_EVT, SBP_PERIODIC_EVT_PERIOD );
         HCI_LE_ReadResolvingListSizeCmd();
         return ( events ^ SBP_START_DEVICE_EVT );
     }
@@ -518,54 +443,6 @@ uint16 SimpleBLEPeripheral_ProcessEvent( uint8 task_id, uint16 events )
         return ( events ^ SBP_RESET_ADV_EVT );
     }
 
-    // notify
-    if ( events & SBP_PERIODIC_EVT )
-    {
-        for(int i=0; i<notifyPktNum; i++)
-        {
-            notifyBuf[0]=HI_UINT16(notifyCnt);
-            notifyBuf[1]=LO_UINT16(notifyCnt);
-
-            if(i==0)
-            {
-                int8 rssi;
-                LL_ReadRssi(0,&rssi);
-                uint16 foff;
-                LL_ReadFoff(0,&foff);
-                uint8 carrSens;
-                LL_ReadCarrSens(0, &carrSens);
-                notifyBuf[17]=rssi;
-                notifyBuf[18]=0xff&((foff-512)>>2);//4KHz resolution
-                notifyBuf[19]=carrSens;
-            }
-
-            uint8 status= simpleProfile_Notify(SIMPLEPROFILE_CHAR6,ATT_GetCurrentMTUSize(0)-3,notifyBuf);
-
-            if(SUCCESS==status)
-            {
-                LOG("[NOTF_TX] %02x %4x\r\n",status,notifyCnt);
-                notifyCnt++;
-            }
-            else
-            {
-                LOG("[NOTF_TX ERR] %02x %4x\r\n",status,notifyCnt);
-                break;
-            }
-        }
-
-        if(notifyInterval>0 )
-        {
-            if(connEvtEndNotify==0)
-                osal_start_timerEx( simpleBLEPeripheral_TaskID, SBP_PERIODIC_EVT, notifyInterval );
-        }
-        else
-        {
-            osal_stop_timerEx( simpleBLEPeripheral_TaskID, SBP_PERIODIC_EVT );
-            notifyCnt=0;
-        }
-
-        return ( events ^ SBP_PERIODIC_EVT );
-    }
 
 #if ( HOST_CONFIG & OBSERVER_CFG )
 
@@ -756,9 +633,8 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
 
     case GAPROLE_ADVERTISING:
     {
-        osal_stop_timerEx(simpleBLEPeripheral_TaskID, SBP_PERIODIC_EVT);
-        notifyCnt=0;
-        notifyInterval = 0;
+				//¹ã²¥ÖÐ
+        
     }
     break;
 
@@ -787,255 +663,6 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
     VOID gapProfileState;
 }
 
-
-/*********************************************************************
-    @fn      simpleProfileChangeCB
-
-    @brief   Callback from SimpleBLEProfile indicating a value change
-
-    @param   paramID - parameter ID of the value that was changed.
-
-    @return  none
-*/
-static void simpleProfileChangeCB( uint8 paramID )
-{
-    uint8 newValue[IBEACON_ATT_LONG_PKT];
-
-    switch( paramID )
-    {
-    case SIMPLEPROFILE_CHAR5:
-        SimpleProfile_GetParameter( SIMPLEPROFILE_CHAR5, newValue );
-        LOG("[WRT_ATT] %02x \r\n",newValue[0]);
-
-        //===============================================================================
-        // 0xff reset to connectable adv
-        if (newValue[0] == 0xff)
-        {
-            otaAdvIntv = newValue[1];
-            LOG("[AdvIntv CONNECT] %04d\r\n",otaAdvIntv*10);
-            // option:
-            // 1. reset
-            // 2. reset advertisement
-            g_current_advType = LL_ADV_CONNECTABLE_UNDIRECTED_EVT;
-            pGlobal_config[ADV_CHANNEL_INTERVAL] = 1400;//6250;
-            VOID updateAdvData();
-        }
-        else if(newValue[0]==0xfe)
-        {
-            otaAdvIntv = newValue[1];
-            LOG("[AdvIntv NONCONN] %04d\r\n",otaAdvIntv*10);
-            // option:
-            // 1. reset
-            // 2. reset advertisement
-            g_current_advType = LL_ADV_NONCONNECTABLE_UNDIRECTED_EVT;
-            pGlobal_config[ADV_CHANNEL_INTERVAL] = 600;//6250;
-            VOID updateAdvData();
-        }
-        //===============================================================================
-        // check per stats
-        else if(newValue[0]==0xfd)
-        {
-            check_PerStatsProcess();
-        }
-        //===============================================================================
-        // standby off mode
-        // else if(newValue[0]==0xfc)
-        // {
-        //     pwroff_cfg_t cfg =
-        //     {
-        //         .pin = P15,
-        //         .type = POL_FALLING,
-        //         .on_time = 3000
-        //     };
-        //     if (newValue[1] == 0)
-        //     {
-        //         LOG("PWR OFF\r\n");
-        //         hal_pwrmgr_poweroff(&cfg, 1);
-        //     }
-        //     else
-        //     {
-        //         cfg.on_time = 1000*newValue[1];
-        //         LOG("STANDBY on time %d\r\n",cfg.on_time);
-        //         hal_pwrmgr_enter_standby(&cfg,1);
-        //     }
-        // }
-        //===============================================================================
-        // [0x00 a1 a2 ] : enable notifiy , notifiy intv is a1
-        else if(newValue[0]== 0x00 )
-        {
-            connEvtEndNotify = (newValue[1]&0x80)>>7;
-            notifyInterval   = (newValue[1]&0x7f)*5;
-            notifyPktNum     = newValue[2];
-            uint16 connIntv;
-            GAPRole_GetParameter(GAPROLE_CONN_INTERVAL,&connIntv);
-            connIntv = ((connIntv<<2)+connIntv)>>2;//*1.25
-
-            if(connEvtEndNotify>0)
-                notifyInterval = connIntv;
-
-            if(notifyInterval>0)
-            {
-                if(notifyInterval<connIntv)
-                {
-                    notifyPktNum=(notifyInterval<<3)/connIntv;
-                }
-
-                if(notifyPktNum==0)
-                {
-                    notifyPktNum=1;
-                    notifyInterval = (connIntv+1)>>2;
-                }
-
-                if(connEvtEndNotify>0)
-                {
-                    HCI_PPLUS_ConnEventDoneNoticeCmd(simpleBLEPeripheral_TaskID, SBP_PERIODIC_EVT);
-                }
-                else
-                {
-                    HCI_PPLUS_ConnEventDoneNoticeCmd(simpleBLEPeripheral_TaskID, NULL);
-                    osal_start_timerEx( simpleBLEPeripheral_TaskID, SBP_PERIODIC_EVT, notifyInterval );
-                }
-            }
-            else
-            {
-                osal_stop_timerEx(simpleBLEPeripheral_TaskID, SBP_PERIODIC_EVT);
-                notifyCnt=0;
-            }
-
-            if(connEvtEndNotify)
-            {
-                LOG("[Notf_Conn] p%d ni%d ci%d\r\n",notifyPktNum,notifyInterval,connIntv);
-            }
-            else
-            {
-                LOG("[Notify   ] p%d ni%d ci%d\r\n",notifyPktNum,notifyInterval,connIntv);
-            }
-        }
-        //===============================================================================
-        // [0x01 a1 a2 a3 a4 ] : cont config ,a1
-        else if(newValue[0]==0x01)
-        {
-            otaConnIntvMin      = newValue[1];
-            otaConnIntvMax      = newValue[2];
-            otaConnIntvLatency  = newValue[3];
-            otaConnTimeOut      = newValue[4];
-            uint16 desired_min_interval = (otaConnIntvMin<<2)<6 ? 6:(otaConnIntvMin<<2);
-            uint16 desired_max_interval = (otaConnIntvMax<<2)<6 ? 6:(otaConnIntvMax<<2);
-            uint16 desired_slave_latency = otaConnIntvLatency;
-            uint16 desired_conn_timeout = otaConnTimeOut*100;
-            uint8 updateConnParams = true;
-            LOG("[ConnPara] %04d %04d L%02d T%02d\r\n",desired_min_interval,
-                desired_max_interval,
-                desired_slave_latency,
-                desired_conn_timeout);
-            GAPRole_SetParameter( GAPROLE_MIN_CONN_INTERVAL, sizeof( uint16 ), &desired_min_interval );
-            GAPRole_SetParameter( GAPROLE_MAX_CONN_INTERVAL, sizeof( uint16 ), &desired_max_interval );
-            GAPRole_SetParameter( GAPROLE_SLAVE_LATENCY, sizeof( uint16 ), &desired_slave_latency );
-            GAPRole_SetParameter( GAPROLE_TIMEOUT_MULTIPLIER, sizeof( uint16 ), &desired_conn_timeout );
-            GAPRole_SetParameter( GAPROLE_PARAM_UPDATE_REQ, sizeof( uint8 ), &updateConnParams );
-        }
-        //===============================================================================
-        // [0x02 a1 a2] : max mtu size
-        else if(newValue[0]==0x02)
-        {
-            g_ATT_MTU_SIZE_MAX = newValue[1];
-            LOG("[MTU SIZE MAX] %02d\r\n",g_ATT_MTU_SIZE_MAX);
-        }
-        //===============================================================================
-        // [0x03 a1 a2] :set pdu length  ,a1 is the pdulength
-        else if(newValue[0]==0x03)
-        {
-            uint8 pduLen = newValue[1];
-            uint16 txTime = (pduLen+10+4)<<3;
-            HCI_LE_SetDataLengthCmd(0,pduLen, txTime);
-//        uint8 status=HCI_PPLUS_DateLengthChangedNoticeCmd(simpleBLEPeripheral_TaskID, SBP_DLE_CHANGE_EVT);
-//        LOG_DEBUG("[DLE] %02d %02d %d\r\n",pduLen,txTime,status);
-        }
-        //===============================================================================
-        // [0x05 a1 a2] :set phy mode
-        else if(newValue[0]==0x05)
-        {
-            uint8 allPhy = newValue[1];
-            uint8 txPhy  = newValue[2];
-            uint8 defPhy  = newValue[3];
-
-            if(defPhy>0)
-            {
-                HCI_LE_SetDefaultPhyMode(0,allPhy, defPhy, defPhy);
-            }
-            else
-            {
-                HCI_LE_SetDefaultPhyMode(0,allPhy, 0x03, 0x03);
-            }
-
-            HCI_LE_SetPhyMode(0,allPhy, txPhy,txPhy,0);//tx/rx set as same phy
-//        uint8 status=HCI_PPLUS_PhyUpdateNoticeCmd(simpleBLEPeripheral_TaskID, SBP_PHY_UPDATE_EVT);
-//        LOG_DEBUG("[PHY] %02d %02d %d\r\n",allPhy,txPhy,status);
-        }
-
-
-        break;
-
-    default:
-        // not process other attribute change
-        break;
-    }
-}
-
-
-/*********************************************************************
-    @fn      updateAdvData
-
-    @brief   update adv data and change the adv type
-
-    @param   none
-
-    @return  none
-*/
-static void updateAdvData(void)
-{
-    uint8  new_uuid[IBEACON_UUID_LEN];
-    uint16  major;
-    uint16  minor;
-    uint8   power;
-    // 1. get the new setting from GATT attributes
-    SimpleProfile_GetParameter( SIMPLEPROFILE_CHAR1, new_uuid );
-    SimpleProfile_GetParameter( SIMPLEPROFILE_CHAR2, &major );
-    SimpleProfile_GetParameter( SIMPLEPROFILE_CHAR3, &minor );
-    SimpleProfile_GetParameter( SIMPLEPROFILE_CHAR4, &power );
-    // 2. update adv data storage
-    //set UUID
-    VOID osal_memcpy(&advertData[9], new_uuid, IBEACON_UUID_LEN);
-    // set major
-    advertData[25] = LO_UINT16( major );
-    advertData[26] = HI_UINT16( major );
-    // set minor
-    advertData[27] = LO_UINT16( minor );
-    advertData[28] = HI_UINT16( minor );
-    // set power
-    advertData[29] = power;
-    // 3. disconnect all connection
-    GAPRole_TerminateConnection();
-    // 4. close advert
-    uint8 initial_advertising_enable = FALSE;
-    GAPRole_SetParameter( GAPROLE_ADVERT_ENABLED, sizeof( uint8 ), &initial_advertising_enable );
-    // 5. update adv data
-    // 5.1 update adv type
-    uint8 advType = g_current_advType;
-    GAPRole_SetParameter( GAPROLE_ADV_EVENT_TYPE, sizeof( uint8 ), &advType );
-    uint16 advInt = otaAdvIntv<<4;
-    GAP_SetParamValue( TGAP_LIM_DISC_ADV_INT_MIN, advInt );
-    GAP_SetParamValue( TGAP_LIM_DISC_ADV_INT_MAX, advInt );
-    GAP_SetParamValue( TGAP_GEN_DISC_ADV_INT_MIN, advInt );
-    GAP_SetParamValue( TGAP_GEN_DISC_ADV_INT_MAX, advInt );
-    // 5.2 update advert broadcast
-    GAPRole_SetParameter( GAPROLE_ADVERT_DATA, sizeof( advertData ), advertData );
-    // 5.3 set TxPower
-    g_rfPhyTxPower = power;
-    rf_phy_set_txPower(power);
-    // 6. set reset advertisement event, note that GAP/LL will process close adv event in advance
-    osal_start_timerEx(simpleBLEPeripheral_TaskID, SBP_RESET_ADV_EVT,5000);
-}
 
 /*********************************************************************
     @fn      bdAddr2Str
