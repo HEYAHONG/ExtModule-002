@@ -688,56 +688,6 @@
               <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty.c</FilePath>
             </File>
             <File>
-              <FileName>h3rdparty_cjson.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty_cjson.c</FilePath>
-            </File>
-            <File>
-              <FileName>h3rdparty_cjsonutils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty_cjsonutils.c</FilePath>
-            </File>
-            <File>
-              <FileName>h3rdparty_mqtt_packet.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty_mqtt_packet.c</FilePath>
-            </File>
-            <File>
-              <FileName>h3rdparty_pb_common.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty_pb_common.c</FilePath>
-            </File>
-            <File>
-              <FileName>h3rdparty_pb_decode.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty_pb_decode.c</FilePath>
-            </File>
-            <File>
-              <FileName>h3rdparty_pb_encode.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty_pb_encode.c</FilePath>
-            </File>
-            <File>
-              <FileName>h3rdparty_printf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty_printf.c</FilePath>
-            </File>
-            <File>
-              <FileName>h3rdparty_softfloat.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty_softfloat.c</FilePath>
-            </File>
-            <File>
-              <FileName>h3rdparty_softfp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty_softfp.c</FilePath>
-            </File>
-            <File>
-              <FileName>hbase64.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdparty\HCppBox\master\hbox\hbase64.c</FilePath>
-            </File>
-            <File>
               <FileName>hcompiler.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\3rdparty\HCppBox\master\hbox\hcompiler.c</FilePath>
@@ -831,6 +781,51 @@
               <FileName>hruntime.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\3rdparty\HCppBox\master\hbox\hruntime.c</FilePath>
+            </File>
+            <File>
+              <FileName>h3rdparty_cjson.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty\h3rdparty_cjson.c</FilePath>
+            </File>
+            <File>
+              <FileName>h3rdparty_cjsonutils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty\h3rdparty_cjsonutils.c</FilePath>
+            </File>
+            <File>
+              <FileName>h3rdparty_mqtt_packet.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty\h3rdparty_mqtt_packet.c</FilePath>
+            </File>
+            <File>
+              <FileName>h3rdparty_pb_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty\h3rdparty_pb_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>h3rdparty_pb_decode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty\h3rdparty_pb_decode.c</FilePath>
+            </File>
+            <File>
+              <FileName>h3rdparty_pb_encode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty\h3rdparty_pb_encode.c</FilePath>
+            </File>
+            <File>
+              <FileName>h3rdparty_printf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty\h3rdparty_printf.c</FilePath>
+            </File>
+            <File>
+              <FileName>h3rdparty_softfloat.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty\h3rdparty_softfloat.c</FilePath>
+            </File>
+            <File>
+              <FileName>h3rdparty_softfp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdparty\HCppBox\master\hbox\h3rdparty\h3rdparty_softfp.c</FilePath>
             </File>
           </Files>
         </Group>

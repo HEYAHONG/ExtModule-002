@@ -14,6 +14,7 @@ extern "C"
 {
 #endif // __cplusplus
 
+#include "hcrypto/hbase64.h"
 #include "hcrypto/haes.h"
 #include "hcrypto/hbcc.h"
 #include "hcrypto/hlrc.h"
@@ -21,6 +22,10 @@ extern "C"
 #include "hcrypto/hmd5.h"
 #include "hcrypto/hsha.h"
 #include "hcrypto/hripemd160.h"
+#include "hcrypto/hsm3.h"
+#include "hcrypto/hmd4.h"
+#include "hcrypto/hsm4.h"
+#include "hcrypto/hhmac.h"
 
 #ifdef __cplusplus
 }

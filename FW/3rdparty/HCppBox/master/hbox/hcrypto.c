@@ -8,6 +8,7 @@
  **************************************************************/
 #include "hcrypto.h"
 
+#include "hcrypto/hbase64.c"
 #include "hcrypto/haes.c"
 #include "hcrypto/hbcc.c"
 #include "hcrypto/hlrc.c"
@@ -15,4 +16,8 @@
 #include "hcrypto/hmd5.c"
 #include "hcrypto/hsha.c"
 #include "hcrypto/hripemd160.c"
+#include "hcrypto/hsm3.c"
+#include "hcrypto/hmd4.c"
+#include "hcrypto/hsm4.c"
+#include "hcrypto/hhmac.c"
 
