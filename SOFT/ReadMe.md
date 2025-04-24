@@ -14,3 +14,7 @@
 
 - https://github.com/HEYAHONG/SimpleBLETool.git
 - https://gitee.com/HEYAHONG/SimpleBLETool.git
+
+# 目录说明
+
+- [SimpleBLE](SimpleBLE):simpleble库。注意:需要注意其许可，本人仅用于测试。

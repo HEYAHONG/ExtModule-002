@@ -1,0 +1,4 @@
+[submodule "SOFT/SimpleBLE"]
+	path = SOFT/SimpleBLE
+	url = ../../HEYAHONG/SimpleBLE.git
+	branch = main
