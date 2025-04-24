@@ -10,6 +10,33 @@
 | ------ | ---- | ---------- |
 | GPIO34 | LED0 | 高电平驱动 |
 
+# 自定义服务
+
+## HShell
+
+在蓝牙上打开一个HShell组件的实例，需要HBox支持。
+
+具体实现见[source/hshellservice.c](source/hshellservice.c),需要启用以下宏定义:
+
+- `HRUNTIME_USING_INIT_SECTION`
+- `HRUNTIME_USING_LOOP_SECTION`
+
+### 服务
+
+UUID(UUID V3,命名空间为OID,名称为HShell):`a3be563b-b374-3e72-98e7-ba70753dcad8`
+
+本服务只有一个特征，支持写入与通知。
+
+通过写入操作可向HShell输入数据，HShell输出的数据通过通知(需要订阅通知)上传。
+
+#### 特征
+
+UUID(UUID V3,命名空间为OID,名称为HShell.IO):`7580782a-4ae0-3851-90a9-9857803461e1`
+
+### 调试截图
+
+![HShellService_SimpleBLETool_Debug](HShellService_SimpleBLETool_Debug.jpg)
+
 # 调试
 
 本固件采用串口调试(通过串口打印调试信息)。

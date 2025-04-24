@@ -598,6 +598,11 @@
               <FileType>1</FileType>
               <FilePath>.\source\led.c</FilePath>
             </File>
+            <File>
+              <FileName>hshellservice.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\source\hshellservice.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

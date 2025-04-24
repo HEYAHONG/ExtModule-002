@@ -87,7 +87,7 @@ void led_init(void)
 void  hled_init(const hruntime_function_t *func)
 {
     led_init();
-    hprintf("LED init ok!");
+    hprintf("LED init ok!\r\n");
 }
 HRUNTIME_INIT_EXPORT(led,0,hled_init,NULL);
 #endif
