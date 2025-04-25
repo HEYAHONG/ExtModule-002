@@ -62,14 +62,14 @@ if(MSVC)
 endif(MSVC)
 
 ##添加HBox库
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../FW/3rdparty/HCppBox/master/hbox HBox  EXCLUDE_FROM_ALL SYSTEM)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../FW/3rdparty/HCppBox/master/hbox HBox  EXCLUDE_FROM_ALL)
 #启用HBox
 hbox_enable(${PROJECT_NAME})
 
 
 
 #添加simpleble库
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../SimpleBLE//simpleble/ SimpleBLE  EXCLUDE_FROM_ALL SYSTEM)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../SimpleBLE//simpleble/ SimpleBLE  EXCLUDE_FROM_ALL)
 target_link_libraries(${PROJECT_NAME} simpleble::simpleble)
 file(GLOB_RECURSE SIMPLEBLE_HEADER_FILES SimpleBLE/simpleble/*.h )
 target_sources(${PROJECT_NAME} PUBLIC  ${SIMPLEBLE_HEADER_FILES})
