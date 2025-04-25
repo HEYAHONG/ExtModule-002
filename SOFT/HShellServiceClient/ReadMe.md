@@ -18,4 +18,10 @@ HShellService的客户端。
 
 # 截图
 
+## Windows
+
 ![HShellServiceClient_windows](HShellServiceClient_windows.jpg)
+
+## Linux
+
+![HShellServiceClinet_Linux](HShellServiceClinet_Linux.png)

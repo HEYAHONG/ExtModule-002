@@ -18,6 +18,7 @@ static std::string ServiceName="HShell";
 static std::string CharacteristicName="HShell.IO";
 int main(int argc,const char *argv[])
 {
+    setbuf(stdout,NULL);
     {
         printf("device name:%s\r\n",DeviceName.c_str());
     }
@@ -165,10 +166,7 @@ int main(int argc,const char *argv[])
                                                 {
                                                     auto notify = [](SimpleBLE::ByteArray payload)
                                                     {
-                                                        for (auto it = payload.begin(); it != payload.end(); it++)
-                                                        {
-                                                            putchar((int)*it);
-                                                        }
+                                                        printf("%s",((std::string)payload).c_str());
                                                     };
                                                     if (peripheral.notify(service.uuid(), characteristic.uuid(),notify))
                                                     {
