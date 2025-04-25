@@ -24,4 +24,4 @@ HShellService的客户端。
 
 ## Linux
 
-![HShellServiceClinet_Linux](HShellServiceClinet_Linux.png)
+![HShellServiceClient_Linux](HShellServiceClient_Linux.png)
