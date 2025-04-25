@@ -98,7 +98,7 @@ int main(int argc,const char *argv[])
                             printf("\t%d\t%s\r\n", (int)i, it->first.c_str());
                         }
                         printf("input selected:");
-                        scanf("%d", (int*)peripheral_index);
+                        scanf("%d", (int*)&peripheral_index);
                         if (peripheral_index < peripheral_list.size())
                         {
                             break;
