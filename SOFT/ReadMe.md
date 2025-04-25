@@ -18,3 +18,4 @@
 # 目录说明
 
 - [SimpleBLE](SimpleBLE):simpleble库。注意:需要注意其许可，本人仅用于测试。
+- [HShellServiceClient](HShellServiceClient):HShellService的客户端。

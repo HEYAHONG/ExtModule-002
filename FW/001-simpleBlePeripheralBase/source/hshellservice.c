@@ -24,7 +24,7 @@ HUUID_DEFINE_LOCAL(hshellservice_characteristic_uuid,0xe1,0x61,0x34,0x80,0x57,0x
 static const gattAttrType_t HShellService = { ATT_UUID_SIZE, hshellservice_service_uuid };
 static uint8_t HShellIOProps = GATT_PROP_NOTIFY | GATT_PROP_WRITE;
 static gattCharCfg_t HShellIOConfig[GATT_MAX_NUM_CONN];
-static uint8_t tx_buffer[ATT_MTU_SIZE-3]= {0};
+static uint8_t tx_buffer[(ATT_MTU_SIZE-3)*3+1]= {0};
 static gattAttribute_t HShellAttrTbl[] =
 {
     {
@@ -100,6 +100,7 @@ static bStatus_t GATTWriteAttrCB( uint16 connHandle, gattAttribute_t* pAttr,uint
 
 
 static size_t  tx_buffer_index=0;
+static size_t  tx_buffer_index_send=0;
 static void GATTNotifyAttr()
 {
     if(tx_buffer_index > 0)
@@ -114,16 +115,29 @@ static void GATTNotifyAttr()
             if(pAttr!=NULL)
             {
                 attHandleValueNoti_t Noti= {0};
-                memcpy(Noti.value,tx_buffer,tx_buffer_index);
+                size_t tx_buffer_to_send=tx_buffer_index-tx_buffer_index_send;
+                if(tx_buffer_to_send > sizeof(Noti.value))
+                {
+                    tx_buffer_to_send=sizeof(Noti.value);
+                }
+                memcpy(Noti.value,&tx_buffer[tx_buffer_index_send],tx_buffer_to_send);
                 Noti.handle=pAttr->handle;
-                Noti.len=tx_buffer_index;
+                Noti.len=tx_buffer_to_send;
                 //发送通知
-                GATT_Notification(connHandle,&Noti,FALSE);
+                if(SUCCESS==GATT_Notification(connHandle,&Noti,FALSE))
+                {
+                    tx_buffer_index_send+=tx_buffer_to_send;
+                }
+
             }
         }
 
     }
-    tx_buffer_index=0;
+    if(tx_buffer_index == tx_buffer_index_send)
+    {
+        tx_buffer_index=0;
+        tx_buffer_index_send=0;
+    }
 }
 
 /*
@@ -135,11 +149,6 @@ static int hshell_putchar(int ch)
     {
         if(tx_buffer_index < (sizeof(tx_buffer)-1))
         {
-            tx_buffer[tx_buffer_index++]=(uint8_t)ch;
-        }
-        else
-        {
-            GATTNotifyAttr();
             tx_buffer[tx_buffer_index++]=(uint8_t)ch;
         }
     }
@@ -171,6 +180,7 @@ static void hshell_init(void)
     hshell_external_api_set(&ctx,api);
     hshell_command_name_shortcut_set(&ctx,true);
     HSHELL_COMMANDS_REGISTER(&ctx);	//注册命令
+    hshell_echo_set(&ctx,false);//关闭回显
 }
 
 
@@ -201,10 +211,19 @@ void hshellservice_init(void)
 
 void hshellservice_loop(void)
 {
-    //运行HShell
-    while(0==hshell_loop(&ctx));
+
     //检查通知数据发送
     GATTNotifyAttr();
+
+    // 未发送完成
+    if(tx_buffer_index > 0)
+    {
+        return;
+    }
+
+    //运行HShell
+    while(0==hshell_loop(&ctx));
+
 }
 
 #ifdef HRUNTIME_USING_INIT_SECTION
