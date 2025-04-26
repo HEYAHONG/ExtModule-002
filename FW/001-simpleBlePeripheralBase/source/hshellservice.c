@@ -24,7 +24,7 @@ HUUID_DEFINE_LOCAL(hshellservice_characteristic_uuid,0xe1,0x61,0x34,0x80,0x57,0x
 static const gattAttrType_t HShellService = { ATT_UUID_SIZE, hshellservice_service_uuid };
 static uint8_t HShellIOProps = GATT_PROP_NOTIFY | GATT_PROP_WRITE;
 static gattCharCfg_t HShellIOConfig[GATT_MAX_NUM_CONN];
-static uint8_t tx_buffer[(ATT_MTU_SIZE-3)*3+1]= {0};
+static uint64_t hshell_tx_buffer[((ATT_MTU_SIZE-3)*3)/sizeof(uint64_t)+1]= {0};
 static gattAttribute_t HShellAttrTbl[] =
 {
     {
@@ -43,7 +43,7 @@ static gattAttribute_t HShellAttrTbl[] =
         { ATT_UUID_SIZE, hshellservice_characteristic_uuid },
         GATT_PERMIT_READ | GATT_PERMIT_WRITE,
         0,
-        (uint8*)tx_buffer
+        (uint8*)hshell_tx_buffer
     },
     {
         {ATT_BT_UUID_SIZE, clientCharCfgUUID},
@@ -66,9 +66,16 @@ static const gattServiceCBs_t HShellCBs =
 static uint64_t hshell_rx_buffer[384/sizeof(uint64_t)]= {0};
 static void hshell_rx_buffer_init(void)
 {
-    hringbuf_t * buffer=hringbuf_get((uint8_t *)hshell_rx_buffer,sizeof(hshell_rx_buffer));
-    //在中断中使用无需加锁(加锁会死机)
-    hringbuf_set_lock(buffer,NULL,NULL,NULL);
+    {
+        hringbuf_t * buffer=hringbuf_get((uint8_t *)hshell_rx_buffer,sizeof(hshell_rx_buffer));
+        //在中断中使用无需加锁(加锁会死机)
+        hringbuf_set_lock(buffer,NULL,NULL,NULL);
+    }
+    {
+        hringbuf_t * buffer=hringbuf_get((uint8_t *)hshell_tx_buffer,sizeof(hshell_tx_buffer));
+        //在中断中使用无需加锁(加锁会死机)
+        hringbuf_set_lock(buffer,NULL,NULL,NULL);
+    }
 }
 
 static bStatus_t GATTWriteAttrCB( uint16 connHandle, gattAttribute_t* pAttr,uint8* pValue, uint16 len, uint16 offset )
@@ -98,46 +105,39 @@ static bStatus_t GATTWriteAttrCB( uint16 connHandle, gattAttribute_t* pAttr,uint
     return status;
 }
 
-
-static size_t  tx_buffer_index=0;
-static size_t  tx_buffer_index_send=0;
 static void GATTNotifyAttr()
 {
-    if(tx_buffer_index > 0)
+    hringbuf_t * buffer=hringbuf_get((uint8_t *)hshell_tx_buffer,sizeof(hshell_tx_buffer));
+    if(hringbuf_get_length(buffer) > 0)
     {
-        tx_buffer[tx_buffer_index]='\0';
         uint16_t connHandle=0;
         GAPRole_GetParameter(GAPROLE_CONNHANDLE, &connHandle);
         if ( GATTServApp_ReadCharCfg( connHandle, HShellIOConfig ) & GATT_CLIENT_CFG_NOTIFY )
         {
             //已使能通知
-            gattAttribute_t *pAttr = GATTServApp_FindAttr( HShellAttrTbl,GATT_NUM_ATTRS( HShellAttrTbl ), tx_buffer );
+            gattAttribute_t *pAttr = GATTServApp_FindAttr( HShellAttrTbl,GATT_NUM_ATTRS( HShellAttrTbl ), (uint8_t *)hshell_tx_buffer );
             if(pAttr!=NULL)
             {
                 attHandleValueNoti_t Noti= {0};
-                size_t tx_buffer_to_send=tx_buffer_index-tx_buffer_index_send;
+                size_t tx_buffer_to_send=hringbuf_get_length(buffer);
                 if(tx_buffer_to_send > sizeof(Noti.value))
                 {
                     tx_buffer_to_send=sizeof(Noti.value);
                 }
-                memcpy(Noti.value,&tx_buffer[tx_buffer_index_send],tx_buffer_to_send);
+                hringbuf_output_no_clear(buffer,(uint8_t *)Noti.value,tx_buffer_to_send);
                 Noti.handle=pAttr->handle;
                 Noti.len=tx_buffer_to_send;
                 //发送通知
                 if(SUCCESS==GATT_Notification(connHandle,&Noti,FALSE))
                 {
-                    tx_buffer_index_send+=tx_buffer_to_send;
+                    hringbuf_output(buffer,(uint8_t *)Noti.value,tx_buffer_to_send);
                 }
 
             }
         }
 
     }
-    if(tx_buffer_index == tx_buffer_index_send)
-    {
-        tx_buffer_index=0;
-        tx_buffer_index_send=0;
-    }
+
 }
 
 /*
@@ -147,10 +147,14 @@ static int hshell_putchar(int ch)
 {
     if(ch>0)
     {
-        if(tx_buffer_index < (sizeof(tx_buffer)-1))
+
+
+        hringbuf_t * buffer=hringbuf_get((uint8_t *)hshell_tx_buffer,sizeof(hshell_tx_buffer));
         {
-            tx_buffer[tx_buffer_index++]=(uint8_t)ch;
+            uint8_t data=(uint8_t)ch;
+            hringbuf_input(buffer,(const uint8_t *)&data,sizeof(data));
         }
+
     }
     return ch;
 
@@ -216,9 +220,12 @@ void hshellservice_loop(void)
     GATTNotifyAttr();
 
     // 未发送完成
-    if(tx_buffer_index > 0)
     {
-        return;
+        hringbuf_t * buffer=hringbuf_get((uint8_t *)hshell_tx_buffer,sizeof(hshell_tx_buffer));
+        if(hringbuf_get_length(buffer) > 0)
+        {
+            return;
+        }
     }
 
     //运行HShell
