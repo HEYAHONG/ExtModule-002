@@ -1,19 +1,12 @@
 /***************************************************************
- * Name:      hdefaults.h
- * Purpose:   声明hdefaults接口
+ * Name:      hlocale.c
+ * Purpose:   实现hlocale接口
  * Author:    HYH (hyhsystem.cn)
- * Created:   2025-04-28
+ * Created:   2025-04-26
  * Copyright: HYH (hyhsystem.cn)
  * License:   MIT
  **************************************************************/
-#ifndef __HDEFAULTS_H__
-#define __HDEFAULTS_H__
+#include "hlocale.h"
 
 
-
-#include "hdefaults/hdefaults.h"
-
-
-
-
-#endif // __HDEFAULTS_H__
+#include "hlocale/hunicode.c"

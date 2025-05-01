@@ -1,24 +1,28 @@
 /***************************************************************
- * Name:      hcompiler.h
- * Purpose:   声明hcompiler接口
+ * Name:      hmemory.h
+ * Purpose:   声明hmemory接口
  * Author:    HYH (hyhsystem.cn)
- * Created:   2025-04-28
+ * Created:   2025-04-26
  * Copyright: HYH (hyhsystem.cn)
  * License:   MIT
  **************************************************************/
-#ifndef __HCOMPILER_H__
-#define __HCOMPILER_H__
+#ifndef __HMEMORY_H__
+#define __HMEMORY_H__
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif // __cplusplus
 
-#include "hcompiler/hcompiler.h"
+
+#include "hmemory/hmemoryheap.h"
+#include "hmemory/hobject.h"
+#include "hmemory/hringbuf.h"
+
 
 #ifdef __cplusplus
 }
 #endif // __cplusplus
 
 
-#endif // __HCOMPILER_H__
+#endif // __HMEMORY_H__
