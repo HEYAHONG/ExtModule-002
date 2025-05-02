@@ -34,5 +34,14 @@ void hbox_tick(void);
  */
 #define HRUNTIME_USING_LOOP_SECTION 1
 
+/*
+ * 使用自定义的putchar
+ */
+#define HPUTCHAR hbox_shell_putchar
+
+/*
+ * 使用自定义的getchar
+ */
+#define HGETCHAR hbox_shell_getchar
 
 #endif // __HBOX_CONFIG_H__

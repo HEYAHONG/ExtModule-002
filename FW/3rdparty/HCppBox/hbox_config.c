@@ -16,7 +16,7 @@ hdefaults_tick_t hbox_tick_get(void)
 /*
  * 使用UART0作为打印输出口
  */
-static void hputchar(char c)
+static void huart0_putchar(char c)
 {
     hal_uart_send_buff(UART0, (uint8_t*)&c, sizeof(c));
 }
@@ -64,16 +64,16 @@ static void hw_feed()
 /*
  * shell相关变量
  */
-static int hbox_shell_putchar(int ch)
+int hbox_shell_putchar(int ch)
 {
     if(ch>0)
     {
-        hputchar(ch&0xFF);
+        huart0_putchar(ch&0xFF);
     }
     return ch;
 
 }
-static int hbox_shell_getchar(void)
+int hbox_shell_getchar(void)
 {
     int ch=EOF;
     {
@@ -117,7 +117,7 @@ void hbox_init(void)
 
     //初始化库函数
     h3rdparty_init();
-    hprintf_set_callback(hputchar);
+    hprintf_set_callback(huart0_putchar);
 
 
     //初始化看门狗
@@ -297,23 +297,6 @@ static int cmd_set_datetime_entry(int argc,const char *argv[])
     return 0;
 };
 HSHELL_COMMAND_EXPORT(set_datetime,cmd_set_datetime_entry,set datetime.);
-
-
-/*
- * 移植fputc
- */
-int fputc(int ch, FILE *f)
-{
-    return ch;
-}
-
-/*
- * 移植fgetc
- */
-int fgetc(FILE *f)
-{
-    return EOF;
-}
 
 
 #endif

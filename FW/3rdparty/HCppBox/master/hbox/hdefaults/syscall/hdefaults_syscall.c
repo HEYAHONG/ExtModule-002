@@ -11,13 +11,28 @@
 
 #include "wrapper/hgettimeofday.c"
 #include "wrapper/hsettimeofday.c"
+#include "wrapper/hgetrandmon.c"
 
 #ifndef HDEFAULTS_SYSCALL_NO_IMPLEMENTATION
 
 #include "implementation/hgettimeofday.c"
 #include "implementation/hsettimeofday.c"
+#include "implementation/hgetrandom.c"
 
 #endif // HDEFAULTS_SYSCALL_NO_IMPLEMENTATION
+
+
+#ifdef HDEFAULTS_SYSCALL_NO_HGETTIMEOFDAY
+#undef HDEFAULTS_SYSCALL_HGETTIMEOFDAY
+#endif // HDEFAULTS_SYSCALL_NO_HGETTIMEOFDAY
+
+#ifdef HDEFAULTS_SYSCALL_NO_HSETTIMEOFDAY
+#undef HDEFAULTS_SYSCALL_HSETTIMEOFDAY
+#endif // HDEFAULTS_SYSCALL_NO_HSETTIMEOFDAY
+
+#ifdef HDEFAULTS_SYSCALL_NO_HGETRANDOM
+#undef HDEFAULTS_SYSCALL_HGETRANDOM
+#endif // HDEFAULTS_SYSCALL_NO_HGETRANDOM
 
 hdefaults_syscall_function_t hdefaults_syscall_function_find(uintptr_t number)
 {
@@ -36,6 +51,13 @@ hdefaults_syscall_function_t hdefaults_syscall_function_find(uintptr_t number)
     case HDEFAULTS_SYSCALL_HSETTIMEOFDAY:
     {
         ret=__hdefaults_usercall_hsettimeofday;
+    }
+    break;
+#endif
+#ifdef HDEFAULTS_SYSCALL_HGETRANDOM
+    case HDEFAULTS_SYSCALL_HGETRANDOM:
+    {
+        ret=__hdefaults_usercall_hgetrandom;
     }
     break;
 #endif

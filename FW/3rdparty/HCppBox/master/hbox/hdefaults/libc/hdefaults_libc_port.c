@@ -1,14 +1,13 @@
 /***************************************************************
- * Name:      hdefaults.h
- * Purpose:   声明hdefaults接口
+ * Name:      hdefaults_libc_port.c
+ * Purpose:   实现hdefaults_libc_port接口
  * Author:    HYH (hyhsystem.cn)
- * Created:   2025-04-28
+ * Created:   2025-05-02
  * Copyright: HYH (hyhsystem.cn)
  * License:   MIT
  **************************************************************/
-#ifndef __HDEFAULTS_H__
-#define __HDEFAULTS_H__
+#include "hdefaults_libc_port.h"
 
-#include "hdefaults/hdefaults.h"
+#include "wrapper/hputchar.c"
+#include "wrapper/hgetchar.c"
 
-#endif // __HDEFAULTS_H__
