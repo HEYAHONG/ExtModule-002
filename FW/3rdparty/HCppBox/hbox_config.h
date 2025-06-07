@@ -35,6 +35,11 @@ void hbox_tick(void);
 #define HRUNTIME_USING_LOOP_SECTION 1
 
 /*
+ * 启用符号段
+ */
+#define HRUNTIME_USING_SYMBOL_SECTION 1
+
+/*
  * 使用自定义的putchar
  */
 #define HPUTCHAR hbox_shell_putchar

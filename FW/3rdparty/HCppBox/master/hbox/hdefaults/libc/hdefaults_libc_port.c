@@ -10,4 +10,9 @@
 
 #include "wrapper/hputchar.c"
 #include "wrapper/hgetchar.c"
+#include "wrapper/hgetenv.c"
+#include "wrapper/hmalloc.c"
+#include "wrapper/hfree.c"
+#include "wrapper/hcalloc.c"
+#include "wrapper/hrealloc.c"
 

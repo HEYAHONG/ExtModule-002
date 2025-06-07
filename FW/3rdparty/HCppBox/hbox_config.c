@@ -129,6 +129,7 @@ void hbox_init(void)
 
     //初始化hruntime组件
     hruntime_init();
+		
 
 }
 
