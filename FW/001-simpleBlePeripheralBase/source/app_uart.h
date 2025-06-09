@@ -30,6 +30,13 @@ void app_uart_send(uint8_t *data,size_t datalen);
 typedef void (*app_uart_rx_callback_t)(uint8_t *data,size_t datalen);
 void app_uart_set_receive_callback(app_uart_rx_callback_t cb);
 
+/*
+ * 应用串口配置
+ * baud:波特率配置
+ * parity:O=ODD,E=EVEN,其它为无校验
+ */
+void app_uart_configure(int baud,char parity);
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

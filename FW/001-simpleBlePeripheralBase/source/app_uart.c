@@ -47,10 +47,25 @@ void app_uart_set_receive_callback(app_uart_rx_callback_t cb)
 
 void app_uart_init()
 {
+    app_uart_configure(APP_UART_BAUD,'N');
+}
+
+void app_uart_configure(int baud,char parity)
+{
+    hal_uart_deinit(UART1);
     hal_gpio_pin_init(APP_UART_TX_PIN,GPIO_OUTPUT);
     hal_gpio_pull_set(APP_UART_TX_PIN,GPIO_PULL_UP_S);
     hal_gpio_pin_init(APP_UART_RX_PIN,GPIO_INPUT);
     hal_gpio_pull_set(APP_UART_RX_PIN,GPIO_PULL_UP);
+    bool have_parity=false;
+    if(parity=='O' || parity=='E')
+    {
+        have_parity=true;
+    }
+    if(have_parity)
+    {
+        hal_uart_set_parity_plan(UART1,parity=='E');
+    }
     uart_Cfg_t cfg =
     {
         .tx_pin = APP_UART_TX_PIN,
@@ -61,10 +76,11 @@ void app_uart_init()
         .use_fifo = TRUE,
         .hw_fwctrl = FALSE,
         .use_tx_buf = FALSE,
-        .parity     = FALSE,
+        .parity     = have_parity,
         .evt_handler = uart_Hdl,
     };
     hal_uart_init(cfg, UART1);//uart init
+
 }
 #ifdef HRUNTIME_USING_INIT_SECTION
 void  happ_uart_init(const hruntime_function_t *func)
