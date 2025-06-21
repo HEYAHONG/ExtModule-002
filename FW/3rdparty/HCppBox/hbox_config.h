@@ -49,4 +49,29 @@ void hbox_tick(void);
  */
 #define HGETCHAR hbox_shell_getchar
 
+/*
+ * 使用自定义的abort
+ */
+#define HABORT hbox_abort
+
+/*
+ * 使用自定义的exit
+ */
+#define HEXIT hbox_exit
+
+/*
+ * 使用自定义的fputs
+ */
+#define HFPUTS hbox_fputs
+
+/*
+ * 使用自定义的vfprintf
+ */
+#define HVFPRINTF hbox_vfprintf
+
+/*
+ * 使用自定义的puts
+ */
+#define HPUTS hbox_puts
+
 #endif // __HBOX_CONFIG_H__

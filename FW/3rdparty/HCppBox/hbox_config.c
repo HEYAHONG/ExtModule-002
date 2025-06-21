@@ -129,7 +129,7 @@ void hbox_init(void)
 
     //初始化hruntime组件
     hruntime_init();
-		
+
 
 }
 
@@ -301,3 +301,38 @@ HSHELL_COMMAND_EXPORT(set_datetime,cmd_set_datetime_entry,set datetime.);
 
 
 #endif
+
+
+void hbox_abort()
+{
+    NVIC_SystemReset();
+}
+
+void hbox_exit(int exit_code)
+{
+    (void)exit_code;
+    hbox_abort();
+}
+
+int hbox_fputs( const char* str, FILE* stream )
+{
+    (void)str;
+    (void)stream;
+    return EOF;
+}
+
+int hbox_vfprintf(FILE* stream,const char* format,va_list vlist)
+{
+    (void)stream;
+    (void)format;
+    (void)vlist;
+    return EOF;
+}
+
+int hbox_puts( const char* str)
+{
+    (void)str;
+    return EOF;
+}
+
+
