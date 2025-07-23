@@ -49,6 +49,8 @@ LR_ROM_XIP  0x11020000 0x020000 {
    h*(+RO)
    led*(+RO)
    app_*(+RO)
+   simpleBLE*.o(+RO)
+   *SimpleBLE*.o(+RO)   
   }
  }  
 
