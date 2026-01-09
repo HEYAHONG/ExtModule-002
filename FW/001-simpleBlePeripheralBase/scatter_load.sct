@@ -8,8 +8,8 @@ LR_IROM1 0x1fff1838 0x0E7C8 {  ; load region size_region
   *(InRoot$$Sections)
   ;*.o(_section_standby_code_)
   *.o(_section_sram_code_)
-  .ANY (+RO)
   .ANY (+RW +ZI)
+  .ANY (+RO)
  }
   ER_IROM2 0x1fffc000 0x04000  {  ; load address = execution address
   rf_phy_driver.o(i.rf_phy_dtm*)

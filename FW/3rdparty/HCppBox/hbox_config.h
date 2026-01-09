@@ -74,4 +74,15 @@ void hbox_tick(void);
  */
 #define HPUTS hbox_puts
 
+
+/*
+ * 关闭getrandom
+ */
+#define HDEFAULTS_SYSCALL_NO_HGETRANDOM 1
+
+/*
+ * 关闭uriparser的uniconde支持
+ */
+#define URI_NO_UNICODE 1
+
 #endif // __HBOX_CONFIG_H__
