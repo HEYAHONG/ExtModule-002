@@ -237,7 +237,7 @@ time_t time(time_t *timer)
     time_t ret=0;
     {
         hgettimeofday_timeval_t tv= {0};
-        hgettimeofday(&tv,NULL);
+        hsyscall_gettimeofday(&tv,NULL);
         ret=tv.tv_sec;
     }
     if(timer!=NULL)
@@ -254,7 +254,7 @@ void set_time(time_t new_time)
 {
     hgettimeofday_timeval_t tv= {0};
     tv.tv_sec=new_time;
-    hsettimeofday(&tv,NULL);
+    hsyscall_settimeofday(&tv,NULL);
 }
 static int cmd_set_datetime_entry(int argc,const char *argv[])
 {

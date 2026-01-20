@@ -4,7 +4,7 @@
 /*
  * 简易内存堆设置
  */
-#define USING_HMEMORYHEAP 1
+//#define USING_HMEMORYHEAP 1
 #ifndef HMEMORYHEAP_DEFAULT_POOL_SIZE
 #define HMEMORYHEAP_DEFAULT_POOL_SIZE 1024
 #endif
@@ -76,9 +76,14 @@ void hbox_tick(void);
 
 
 /*
- * 关闭getrandom
+ * 不实现系统调用
  */
-#define HDEFAULTS_SYSCALL_NO_HGETRANDOM 1
+#define HDEFAULTS_SYSCALL_NO_IMPLEMENTATION 1
+
+/*
+ * 不实现hlibc
+ */
+#define HLIBC_NO_IMPLEMENTATION 1
 
 /*
  * 关闭uriparser的uniconde支持
