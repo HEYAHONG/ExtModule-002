@@ -19,8 +19,15 @@
  * hlibc
  */
 #if !defined(HLIBC_NO_IMPLEMENTATION)
+#if !defined(HLIBC_NO_ENV)
 #include "hlibc/env/hlibc_env.c"
+#endif
+#if !defined(HLIBC_NO_ATOMIC_FLAG)
 #include "hlibc/stdatomic/hlibc_atomic_flag.c"
+#endif
+#if !defined(HLIBC_NO_TIME)
+#include "hlibc/time/hlibc_time.c"
+#endif
 #else
 #ifdef HDEFAULTS_LIBC_TINY
 #undef HDEFAULTS_LIBC_TINY
@@ -81,6 +88,10 @@
 #include "wrapper/posix/stdlib/hsetenv.c"
 #include "wrapper/posix/stdlib/hunsetenv.c"
 
+/*
+ * 非标扩展
+ */
+#include "wrapper/nonstandard/stdatomic/hatomic_int.c"
 
 void hdefaults_libc_port_init(void)
 {
